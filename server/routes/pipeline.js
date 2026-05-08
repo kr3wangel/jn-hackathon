@@ -2,7 +2,6 @@ import { Router } from 'express';
 import { fetchImagery } from '../services/imagery.js';
 import { fetchBuildingInsights } from '../services/solar.js';
 import { analyzeProperty } from '../services/vision.js';
-import { generateEstimate } from '../services/pricing.js';
 import { pushToJobNimbus } from '../services/jobnimbus.js';
 import { geocodeAddress } from '../services/geocode.js';
 
@@ -59,17 +58,12 @@ pipelineRouter.post('/pipeline', async (req, res) => {
       send('step', { step: 'vision', status: 'done', data: { skipped: true, reason: 'ANTHROPIC_API_KEY not set' } });
     }
 
-    // Step 3: Pricing
-    send('step', { step: 'pricing', status: 'loading', message: 'Generating three-tier estimate...' });
-    const estimate = generateEstimate(roofData, visionData, zip || roofData.postalCode);
-    send('step', { step: 'pricing', status: 'done', data: estimate });
-
-    // Step 4: JobNimbus (requires JN_API_KEY)
+    // Step 3: JobNimbus (requires JN_API_KEY)
     let jnResult = null;
     if (process.env.JN_API_KEY) {
       send('step', { step: 'jobnimbus', status: 'loading', message: 'Pushing to JobNimbus...' });
       try {
-        jnResult = await pushToJobNimbus({ address, lat, lng, zip, estimate });
+        jnResult = await pushToJobNimbus({ address, lat, lng, zip, roofData, visionData });
         send('step', { step: 'jobnimbus', status: 'done', data: jnResult });
       } catch (jnErr) {
         send('step', { step: 'jobnimbus', status: 'done', data: { skipped: true, reason: jnErr.message } });
@@ -83,7 +77,6 @@ pipelineRouter.post('/pipeline', async (req, res) => {
       imagery,
       roofData,
       visionData,
-      estimate,
       jobnimbus: jnResult,
     });
   } catch (err) {

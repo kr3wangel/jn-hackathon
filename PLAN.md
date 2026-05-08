@@ -2,7 +2,7 @@
 
 ## Context
 
-Build an AI pipeline that takes a property address and produces a customer-facing roofing estimate in ~30-60 seconds, pushed live into JobNimbus CRM. Replaces a 30+ minute contractor workflow. $10K bounty.
+Build an AI pipeline that takes a property address and produces a fully-prepped JobNimbus lead — measurements, photos, and AI condition notes — in ~30-60 seconds. Replaces the 30+ minutes a contractor spends on intake before they can quote. $10K bounty.
 
 **Stack:** Node (Express) backend, React + Vite frontend, Claude Sonnet for vision analysis.
 
@@ -17,9 +17,13 @@ Address input (Google Places Autocomplete)
   → Google Solar API → roof area (m2), pitch (degrees), segments, facet count
   → Fetch satellite image (Google Static Maps) + Street View
   → Claude Sonnet on Street View → material, condition, damage
-  → Pricing engine: sqft × per-zip rates → Good/Better/Best tiers
-  → JobNimbus push: POST contact → POST job → POST estimate
+  → JobNimbus push: POST contact → POST job (with measurements + AI analysis)
 ```
+
+**No pricing.** Pricing varies too much between contractors for a one-size-fits-all
+quote to be honest. The deliverable is a fully-prepped lead in JobNimbus —
+measurements, photos, and AI condition notes — so the contractor can quote it
+with their own numbers in seconds instead of hours.
 
 ---
 
@@ -32,33 +36,27 @@ jn-hackathon/
 ├── README.md                     # Setup, architecture, how to run
 ├── package.json                  # root — workspaces or simple scripts
 ├── examples/                     # 3-5 example pipeline runs (committed for submission)
-│   ├── README.md                 # Table of addresses, sqft, prices, times
+│   ├── README.md                 # Table of addresses, sqft, pipeline times
 │   └── 123-main-st-provo-ut/    # One folder per address
-│       ├── estimate.pdf
 │       ├── satellite.jpg
 │       ├── streetview.jpg
-│       └── output.json           # Full pipeline output (roof stats, pricing, JN response)
+│       └── output.json           # Full pipeline output (roof stats, AI analysis, JN response)
 ├── server/
 │   ├── package.json
 │   ├── index.js                  # Express entry point
 │   ├── routes/
-│   │   ├── pipeline.js           # POST /api/pipeline — full address→estimate flow
+│   │   ├── pipeline.js           # POST /api/pipeline — full address→JN-job flow
 │   │   ├── jobnimbus.js          # JN API proxy routes
 │   │   └── health.js
 │   ├── services/
 │   │   ├── solar.js              # Google Solar API → roof area, pitch, segments
 │   │   ├── imagery.js            # Satellite + Street View image URLs
 │   │   ├── vision.js             # Claude Sonnet on Street View (material, condition)
-│   │   ├── pricing.js            # Per-zip pricing engine
-│   │   └── jobnimbus.js          # JN API client (contacts, jobs, estimates)
-│   ├── config/
-│   │   ├── pricing/              # Per-zip JSON pricing configs
-│   │   │   └── default.json
-│   │   └── prompts/              # Vision model prompt templates
-│   │       ├── satellite.txt
-│   │       └── streetview.txt
-│   └── utils/
-│       └── pitch-tables.js       # Pitch multiplier lookup
+│   │   └── jobnimbus.js          # JN API client (contacts, jobs)
+│   └── config/
+│       └── prompts/              # Vision model prompt templates
+│           ├── satellite.txt
+│           └── streetview.txt
 ├── client/
 │   ├── package.json
 │   ├── index.html
@@ -69,8 +67,8 @@ jn-hackathon/
 │       ├── components/
 │       │   ├── AddressInput.jsx   # Google Places Autocomplete input
 │       │   ├── Timer.jsx          # Live stopwatch during pipeline
-│       │   ├── RoofDiagram.jsx    # Annotated satellite with facets
-│       │   ├── ProposalView.jsx   # Good/Better/Best tiers
+│       │   ├── RoofStats.jsx      # Roof measurements card
+│       │   ├── VisionAnalysis.jsx # AI roof analysis card
 │       │   └── StatusTracker.jsx  # Pipeline progress steps
 │       ├── hooks/
 │       │   └── usePipeline.js     # WebSocket/SSE for pipeline progress
@@ -119,26 +117,19 @@ jn-hackathon/
 - The more fine-grained the detail, the more credible the estimate looks to judges and contractors
 - Display roof stats + analysis results in the UI with proper roofing terminology
 
-### Phase 3 — Pricing Engine + Proposals
-**Goal:** Three-tier estimate with line items.
-**Demoable output:** Type an address → see Good/Better/Best proposals with dollar amounts.
-
-- Per-zip pricing config (JSON, seeded with industry averages)
-- Three-tier calculation: Good (3-tab) / Better (architectural) / Best (impact-resistant)
-- Each tier: (material + labor + tearoff + dump) × squares + permit × (1 + margin)
-- Three-tier proposal cards in the UI (side-by-side)
-- Line item breakdown per tier
-
-### Phase 4 — JobNimbus Integration
-**Goal:** Estimate lands in JN CRM automatically.
-**Demoable output:** Type an address → alt-tab to JN → refresh → estimate is there.
+### Phase 3 — JobNimbus Integration
+**Goal:** Lead lands in JN CRM automatically with all the inspection data attached.
+**Demoable output:** Type an address → alt-tab to JN → refresh → contact + job are there with measurements and AI notes in the description.
 
 - `POST /api1/contacts` — create homeowner
-- `POST /api1/jobs` — link to contact via `primary.id`
-- `POST /api1/estimates` — push estimate with line items, linked to contact + job
+- `POST /api1/jobs` — link to contact via `primary.id`, include roof stats and
+  AI analysis in the description so the contractor sees everything they need
+  to quote it themselves
 - Bearer token auth, Unix timestamps, `jnid` chaining
 - Success confirmation in the UI ("Pushed to JobNimbus")
 - Timer stops when JN push completes
+- **No estimate push.** Pricing is left to the contractor — variance between
+  shops is too high to publish a generic quote.
 
 ### Phase 5 — Polish + Demo Prep
 **Goal:** Reliable, presentable, rehearsed.
@@ -150,16 +141,16 @@ jn-hackathon/
 - Rehearse 90-second demo script
 
 ### Phase 6 — Submission
-**Goal:** Public repo with example estimates, ready for AI bot review.
+**Goal:** Public repo with example pipeline outputs, ready for AI bot review.
 
 - **Public GitHub repo** — push to a public repo for submission
   - Ensure `.env` is in `.gitignore` (already is), no API keys in committed code
   - Clean commit history that tells a coherent build story
   - README.md with: project overview, architecture diagram, setup instructions, how to run
-- **Example estimates** — run the full pipeline on 3-5 addresses, commit the outputs:
+- **Example outputs** — run the full pipeline on 3-5 addresses, commit the outputs:
   - `examples/` folder at repo root
   - Each example is a subfolder named by address slug (e.g., `examples/123-main-st-provo-ut/`)
-  - Each subfolder contains: estimate PDF, satellite image, Street View image, pipeline output JSON (roof stats, pricing, JN response)
+  - Each subfolder contains: satellite image, Street View image, pipeline output JSON (roof stats, AI analysis, JN response)
   - Pick diverse addresses: different regions, roof sizes, materials, conditions
   - At least one Utah address (JobNimbus is based in Orem, UT — judges will recognize local properties)
 - **Example address candidates** (verify these work with Google Solar API before committing):
@@ -247,7 +238,7 @@ Source: [brand.jobnimbus.com](https://brand.jobnimbus.com/)
 
 3. **SSE for pipeline progress** — Server-Sent Events from Express to stream step-by-step status to the frontend. Simpler than WebSocket for one-way updates.
 
-4. **Pricing as JSON config** — Seed with industry averages from public sources (HomeAdvisor, Angi, RSMeans). Per-zip overrides allow regional accuracy.
+4. **No pricing** — Variance between contractors is too high to publish a generic quote. The deliverable is a fully-prepped lead with all the data the contractor needs to quote it themselves.
 
 5. **No database** — Everything flows through the pipeline and lands in JN. No persistence needed for the demo.
 
@@ -267,14 +258,14 @@ Source: [brand.jobnimbus.com](https://brand.jobnimbus.com/)
 - Commit history that tells a coherent story
 
 **Narrative arc (90 seconds):**
-1. **The problem** (10s) — "A roofing contractor spends 30+ minutes measuring, pricing, and quoting every lead. By the time they send the estimate, the homeowner called someone else."
-2. **The solve** (40s) — Type/speak an address. The UI shows every pipeline step in real-time: geocoding → satellite fetch → AI analysis → measurement → pricing → JN push. Timer running the whole time. Lands in ~30-60 seconds.
-3. **The proof** (20s) — Alt-tab to JN sandbox, refresh, estimate is there. Show the three-tier proposal. Show the accuracy chart from calibration.
-4. **The frame** (20s) — "This is what AssistAI looks like when it ships. Address in, closeable proposal out, already in JobNimbus."
+1. **The problem** (10s) — "A roofing contractor spends 30+ minutes on intake — measuring, photographing, and writing up every lead — before they can even start quoting. By the time the estimate goes out, the homeowner called someone else."
+2. **The solve** (40s) — Type/speak an address. The UI shows every pipeline step in real-time: geocoding → satellite fetch → measurement → AI analysis → JN push. Timer running the whole time. Lands in ~30-60 seconds.
+3. **The proof** (20s) — Alt-tab to JN sandbox, refresh, contact + job are there with measurements and AI condition notes already filled in. Contractor opens the job, types in their numbers, sends the quote.
+4. **The frame** (20s) — "This is what AssistAI looks like when it ships. Address in, fully-prepped lead in JobNimbus — contractor quotes it with their own pricing in seconds instead of hours."
 
 **Key design decisions for the audience split:**
-- **Visible pipeline steps** — not a loading spinner. Each step (geocode, satellite, vision, pricing, JN push) updates live. Product people see the "how". Tech leads see it's real.
-- **Three-tier proposals** — product people understand this is sales psychology, not just a measurement tool. "Good/Better/Best closes more deals than a single number."
+- **Visible pipeline steps** — not a loading spinner. Each step (geocode, satellite, measurement, vision, JN push) updates live. Product people see the "how". Tech leads see it's real.
+- **No fake pricing** — we deliberately do NOT generate a price. Every contractor will respect this; it tells them the tool is honest about what it knows. The lead that lands in JN has everything they need to quote it themselves in seconds.
 - **Timer front and center** — the single most persuasive visual. 38 seconds vs 30 minutes needs no explanation.
 - **Confidence scores + honesty** — "Verify pitch on-site" flags show the system knows its limits. Tech leads trust this more than fake precision.
 - **Annotated imagery** — roof facets drawn on the satellite photo, damage boxes on Street View. Visual proof the AI actually analyzed the property.
@@ -288,12 +279,11 @@ Source: [brand.jobnimbus.com](https://brand.jobnimbus.com/)
 
 ## Verification / Demo Checklist
 
-- [ ] Type an address → estimate appears in JN sandbox within 60 seconds
-- [ ] Three-tier proposal renders with accurate line items
-- [ ] Satellite image shows annotated roof facets
-- [ ] Street View correctly identifies material type
+- [ ] Type an address → JN contact + job created within 60 seconds
+- [ ] Roof stats card renders with sqft, pitch, and facet count
+- [ ] AI analysis card renders with material, condition, and any visible damage
+- [ ] Satellite + Street View images load
 - [ ] Timer displays elapsed time prominently
-- [ ] Alt-tab to JN, refresh, estimate is there (the mic-drop moment)
+- [ ] Alt-tab to JN, refresh, contact + job are there with measurements and AI notes in the job description (the mic-drop moment)
 - [ ] Public GitHub repo — no secrets committed, README is clear, AI bot can understand the codebase
-- [ ] `examples/` folder has 3-5 addresses with estimate PDFs + pipeline output JSON
-- [ ] Each example PDF opens correctly and shows all three tiers with line items
+- [ ] `examples/` folder has 3-5 addresses with images + pipeline output JSON

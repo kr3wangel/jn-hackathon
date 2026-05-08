@@ -4,10 +4,9 @@ import Timer from './components/Timer';
 import StatusTracker from './components/StatusTracker';
 import RoofStats from './components/RoofStats';
 import VisionAnalysis from './components/VisionAnalysis';
-import ProposalView from './components/ProposalView';
 import './styles/app.css';
 
-const STEPS = ['imagery', 'vision', 'pricing', 'jobnimbus'];
+const STEPS = ['imagery', 'vision', 'jobnimbus'];
 
 export default function App() {
   const [pipelineState, setPipelineState] = useState('idle');
@@ -15,7 +14,6 @@ export default function App() {
   const [imagery, setImagery] = useState(null);
   const [roofData, setRoofData] = useState(null);
   const [visionData, setVisionData] = useState(null);
-  const [estimate, setEstimate] = useState(null);
   const [jnResult, setJnResult] = useState(null);
   const [error, setError] = useState(null);
 
@@ -25,7 +23,6 @@ export default function App() {
     setImagery(null);
     setRoofData(null);
     setVisionData(null);
-    setEstimate(null);
     setJnResult(null);
     setError(null);
 
@@ -80,9 +77,6 @@ export default function App() {
       if (data.step === 'vision' && data.data) {
         setVisionData(data.data);
       }
-      if (data.step === 'pricing' && data.data) {
-        setEstimate(data.data);
-      }
       if (data.step === 'jobnimbus' && data.data) {
         setJnResult(data.data);
       }
@@ -90,7 +84,6 @@ export default function App() {
       setPipelineState('done');
       if (data.roofData) setRoofData(data.roofData);
       if (data.visionData) setVisionData(data.visionData);
-      if (data.estimate) setEstimate(data.estimate);
       if (data.jobnimbus) setJnResult(data.jobnimbus);
     } else if (event === 'error') {
       setError(data.message);
@@ -113,9 +106,9 @@ export default function App() {
 
       <main className="container main">
         <div className="hero">
-          <span className="eyebrow">AI-POWERED ROOF ESTIMATOR</span>
-          <h2>Instant roofing estimates,<br />delivered to JobNimbus</h2>
-          <p className="subtitle">Enter a property address to generate a professional three-tier estimate in seconds.</p>
+          <span className="eyebrow">AI-POWERED ROOF INSPECTION</span>
+          <h2>Instant roof inspections,<br />delivered to JobNimbus</h2>
+          <p className="subtitle">Enter a property address to capture roof measurements, AI analysis, and a JobNimbus job in seconds.</p>
         </div>
 
         <AddressInput onSubmit={handleSubmit} disabled={pipelineState === 'running'} />
@@ -141,14 +134,12 @@ export default function App() {
 
         {visionData && <VisionAnalysis data={visionData} />}
 
-        {estimate && <ProposalView estimate={estimate} />}
-
         {jnResult && !jnResult.skipped && (
           <div className="jn-success">
             <div className="jn-success-icon">✓</div>
             <div className="jn-success-text">
               <strong>Pushed to JobNimbus</strong>
-              <span>Contact, job, and {jnResult.tier} estimate created — ${jnResult.total?.toLocaleString()}</span>
+              <span>Contact and job created — {jnResult.jobName}</span>
             </div>
           </div>
         )}
