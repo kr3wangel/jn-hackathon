@@ -1,0 +1,117 @@
+.roof-overlay {
+  background: #fff;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+  margin-top: 32px;
+}
+
+.roof-overlay .card-label {
+  display: block;
+  padding: 14px 18px 10px;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.05em;
+  color: var(--jn-text-muted);
+  text-transform: uppercase;
+}
+
+.roof-overlay-canvas {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: var(--jn-cloud);
+}
+
+.roof-overlay-canvas img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+}
+
+.roof-overlay-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.roof-polygon {
+  fill: rgba(255, 77, 46, 0.15);
+  stroke: #ff4d2e;
+  stroke-width: 5;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+  animation: polygon-draw 0.6s ease-out;
+}
+
+@keyframes polygon-draw {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.roof-label {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+  padding: 6px 12px;
+  background: rgba(31, 44, 71, 0.92);
+  color: #fff;
+  border-radius: var(--radius-sm);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  pointer-events: none;
+  white-space: nowrap;
+  animation: roof-label-pop 0.5s ease-out 0.2s both;
+}
+
+.roof-label-value {
+  font-size: 1.1rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+
+.roof-label-unit {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.05em;
+  color: rgba(255, 255, 255, 0.7);
+  text-transform: uppercase;
+}
+
+@keyframes roof-label-pop {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.85);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+.roof-overlay-fallback,
+.roof-overlay-disclaimer {
+  margin: 0;
+  padding: 10px 18px 14px;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.04em;
+  color: var(--jn-text-muted);
+  text-transform: uppercase;
+}
+
+.roof-overlay-disclaimer {
+  border-top: 1px solid var(--jn-border);
+}

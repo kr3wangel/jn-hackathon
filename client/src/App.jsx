@@ -4,6 +4,7 @@ import Timer from './components/Timer';
 import StatusTracker from './components/StatusTracker';
 import RoofStats from './components/RoofStats';
 import VisionAnalysis from './components/VisionAnalysis';
+import RoofOverlay from './components/RoofOverlay';
 import './styles/app.css';
 
 const STEPS = ['imagery', 'vision', 'jobnimbus'];
@@ -13,6 +14,7 @@ export default function App() {
   const [steps, setSteps] = useState({});
   const [imagery, setImagery] = useState(null);
   const [roofData, setRoofData] = useState(null);
+  const [roofOutline, setRoofOutline] = useState(null);
   const [visionData, setVisionData] = useState(null);
   const [jnResult, setJnResult] = useState(null);
   const [error, setError] = useState(null);
@@ -22,6 +24,7 @@ export default function App() {
     setSteps({});
     setImagery(null);
     setRoofData(null);
+    setRoofOutline(null);
     setVisionData(null);
     setJnResult(null);
     setError(null);
@@ -73,6 +76,7 @@ export default function App() {
       if (data.step === 'imagery' && data.data) {
         setImagery({ satellite: data.data.satellite, streetView: data.data.streetView });
         if (data.data.roofData) setRoofData(data.data.roofData);
+        if (data.data.roofOutline) setRoofOutline(data.data.roofOutline);
       }
       if (data.step === 'vision' && data.data) {
         setVisionData(data.data);
@@ -83,6 +87,7 @@ export default function App() {
     } else if (event === 'done') {
       setPipelineState('done');
       if (data.roofData) setRoofData(data.roofData);
+      if (data.roofOutline) setRoofOutline(data.roofOutline);
       if (data.visionData) setVisionData(data.visionData);
       if (data.jobnimbus) setJnResult(data.jobnimbus);
     } else if (event === 'error') {
@@ -119,14 +124,19 @@ export default function App() {
 
         {(pipelineState === 'done' || pipelineState === 'error') && (
           <div className="results">
+            {imagery && (
+              <RoofOverlay
+                imageUrl={imagery.satellite}
+                polygon={roofOutline?.polygon}
+                sqft={roofData?.totalAreaSqft}
+                confidence={roofOutline?.confidence}
+              />
+            )}
+
             {roofData && <RoofStats data={roofData} />}
 
             {imagery && (
-              <div className="imagery-grid">
-                <div className="imagery-card">
-                  <span className="card-label">SATELLITE VIEW</span>
-                  <img src={imagery.satellite} alt="Satellite view" />
-                </div>
+              <div className="imagery-grid single">
                 <div className="imagery-card">
                   <span className="card-label">STREET VIEW</span>
                   <img src={imagery.streetView} alt="Street view" />

@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { fetchImagery } from '../services/imagery.js';
 import { fetchBuildingInsights } from '../services/solar.js';
+import { fetchRoofPolygon } from '../services/roofMask.js';
 import { analyzeProperty } from '../services/vision.js';
 import { pushToJobNimbus } from '../services/jobnimbus.js';
 import { geocodeAddress } from '../services/geocode.js';
@@ -37,12 +38,16 @@ pipelineRouter.post('/pipeline', async (req, res) => {
     // Step 1: Imagery + Solar
     send('step', { step: 'imagery', status: 'loading', message: 'Fetching property data...' });
 
-    const [roofData, imagery] = await Promise.all([
+    const [roofData, imagery, roofOutline] = await Promise.all([
       fetchBuildingInsights(lat, lng),
       fetchImagery(lat, lng),
+      fetchRoofPolygon(lat, lng).catch((e) => {
+        console.warn('Roof mask fetch failed:', e.message);
+        return null;
+      }),
     ]);
 
-    send('step', { step: 'imagery', status: 'done', data: { ...imagery, roofData } });
+    send('step', { step: 'imagery', status: 'done', data: { ...imagery, roofData, roofOutline } });
 
     // Step 2: Vision (requires ANTHROPIC_API_KEY)
     let visionData = null;
@@ -76,6 +81,7 @@ pipelineRouter.post('/pipeline', async (req, res) => {
       message: 'Pipeline complete',
       imagery,
       roofData,
+      roofOutline,
       visionData,
       jobnimbus: jnResult,
     });
