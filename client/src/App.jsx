@@ -117,40 +117,44 @@ export default function App() {
           <StatusTracker steps={STEPS} stepState={steps} pipelineState={pipelineState} error={error} />
         )}
 
-        {roofData && <RoofStats data={roofData} />}
+        {(pipelineState === 'done' || pipelineState === 'error') && (
+          <div className="results">
+            {roofData && <RoofStats data={roofData} />}
 
-        {imagery && (
-          <div className="imagery-grid">
-            <div className="imagery-card">
-              <span className="card-label">SATELLITE VIEW</span>
-              <img src={imagery.satellite} alt="Satellite view" />
-            </div>
-            <div className="imagery-card">
-              <span className="card-label">STREET VIEW</span>
-              <img src={imagery.streetView} alt="Street view" />
-            </div>
-          </div>
-        )}
+            {imagery && (
+              <div className="imagery-grid">
+                <div className="imagery-card">
+                  <span className="card-label">SATELLITE VIEW</span>
+                  <img src={imagery.satellite} alt="Satellite view" />
+                </div>
+                <div className="imagery-card">
+                  <span className="card-label">STREET VIEW</span>
+                  <img src={imagery.streetView} alt="Street view" />
+                </div>
+              </div>
+            )}
 
-        {visionData && <VisionAnalysis data={visionData} />}
+            {visionData && <VisionAnalysis data={visionData} />}
 
-        {jnResult && !jnResult.skipped && (
-          <div className="jn-success">
-            <div className="jn-success-icon">✓</div>
-            <div className="jn-success-text">
-              <strong>Pushed to JobNimbus</strong>
-              <span>Contact and job created — {jnResult.jobName}</span>
-            </div>
-          </div>
-        )}
+            {jnResult && !jnResult.skipped && (
+              <div className="jn-success">
+                <div className="jn-success-icon">✓</div>
+                <div className="jn-success-text">
+                  <strong>Pushed to JobNimbus</strong>
+                  <span>Contact and job created — {jnResult.jobName}</span>
+                </div>
+              </div>
+            )}
 
-        {jnResult && jnResult.skipped && (
-          <div className="jn-skipped">
-            <div className="jn-skipped-icon">→</div>
-            <div className="jn-skipped-text">
-              <strong>JobNimbus push skipped</strong>
-              <span>{jnResult.reason}</span>
-            </div>
+            {jnResult && jnResult.skipped && (
+              <div className="jn-skipped">
+                <div className="jn-skipped-icon">→</div>
+                <div className="jn-skipped-text">
+                  <strong>JobNimbus push skipped</strong>
+                  <span>{jnResult.reason}</span>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </main>

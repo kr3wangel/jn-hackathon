@@ -21,32 +21,45 @@
   background: #fff8f6;
 }
 
-.vision-detail-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
+.kv-table {
+  width: 100%;
+  border-collapse: collapse;
   margin-top: 12px;
+  font-size: 0.9rem;
 }
 
-.vision-detail {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
+.kv-table th,
+.kv-table td {
+  padding: 8px 0;
+  text-align: left;
+  border-bottom: 1px solid var(--jn-border);
+  vertical-align: middle;
 }
 
-.detail-label {
+.kv-table tr:last-child th,
+.kv-table tr:last-child td {
+  border-bottom: none;
+}
+
+.kv-table th {
   font-family: var(--font-mono);
-  font-size: 0.65rem;
-  letter-spacing: 0.05em;
+  font-size: 0.7rem;
+  letter-spacing: 0.04em;
   color: var(--jn-text-muted);
   text-transform: uppercase;
+  font-weight: 500;
+  width: 50%;
 }
 
-.detail-value {
-  font-size: 0.9rem;
+.kv-table td {
   font-weight: 600;
   color: var(--jn-text);
   text-transform: capitalize;
+}
+
+.kv-table.align-right td {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
 }
 
 .confidence-tag {

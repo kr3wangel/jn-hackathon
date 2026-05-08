@@ -80,9 +80,10 @@ export async function analyzeProperty(satelliteUrl, streetViewUrl) {
 
 async function analyzeImage(imageUrl, prompt) {
   const imageResponse = await fetch(imageUrl);
+  const contentType = imageResponse.headers.get('content-type') || '';
+  const mediaType = contentType.includes('png') ? 'image/png' : 'image/jpeg';
   const imageBuffer = await imageResponse.arrayBuffer();
   const base64 = Buffer.from(imageBuffer).toString('base64');
-  const mediaType = 'image/jpeg';
 
   const response = await getClient().messages.create({
     model: 'claude-sonnet-4-20250514',

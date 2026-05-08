@@ -1,12 +1,46 @@
 .status-tracker {
   display: flex;
-  justify-content: center;
-  gap: 32px;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
   margin-bottom: 32px;
   padding: 20px 24px;
   background: #fff;
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-sm);
+}
+
+.status-steps {
+  display: flex;
+  justify-content: center;
+  gap: 32px;
+}
+
+.status-message {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 20px;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--jn-text-muted);
+  letter-spacing: 0.01em;
+}
+
+.status-message-text {
+  display: inline-block;
+  animation: status-fade-in 0.35s ease-out;
+}
+
+@keyframes status-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(2px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .status-step {
