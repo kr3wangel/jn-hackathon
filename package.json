@@ -1,0 +1,25 @@
+{
+  "name": "roofsnap",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "concurrently -n server,client -c blue,green \"node --watch server/index.js\" \"vite client\"",
+    "dev:server": "node --watch server/index.js",
+    "dev:client": "vite client",
+    "build": "vite build client",
+    "start": "node server/index.js"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.95.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.4.1",
+    "concurrently": "^9.1.2",
+    "vite": "^6.3.5"
+  }
+}

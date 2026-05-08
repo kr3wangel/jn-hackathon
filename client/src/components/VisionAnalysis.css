@@ -1,0 +1,124 @@
+.vision-section {
+  margin-top: 40px;
+}
+
+.vision-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.vision-card {
+  background: #fff;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  padding: 20px;
+}
+
+.vision-card.damage-card {
+  grid-column: 1 / -1;
+  border: 1px solid var(--jn-sunset);
+  background: #fff8f6;
+}
+
+.vision-detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.vision-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.detail-label {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.05em;
+  color: var(--jn-text-muted);
+  text-transform: uppercase;
+}
+
+.detail-value {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--jn-text);
+  text-transform: capitalize;
+}
+
+.confidence-tag {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  background: var(--jn-cloud);
+  color: var(--jn-text-muted);
+  padding: 1px 6px;
+  border-radius: var(--radius-sm);
+  margin-left: 6px;
+  vertical-align: middle;
+  text-transform: uppercase;
+}
+
+.condition-notes {
+  font-size: 0.8rem;
+  color: var(--jn-text-secondary);
+  margin-top: 12px;
+  line-height: 1.4;
+  padding-top: 12px;
+  border-top: 1px solid var(--jn-border);
+}
+
+.damage-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.damage-item {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  background: #fff;
+  border: 1px solid var(--jn-border);
+}
+
+.damage-item.severity-severe {
+  border-color: #e53e3e;
+  background: #fff5f5;
+}
+
+.damage-item.severity-moderate {
+  border-color: var(--jn-sunset);
+  background: #fff8f6;
+}
+
+.damage-type {
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: var(--jn-text);
+  text-transform: capitalize;
+}
+
+.damage-severity {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+  background: var(--jn-cloud);
+  color: var(--jn-text-muted);
+}
+
+.damage-desc {
+  font-size: 0.8rem;
+  color: var(--jn-text-secondary);
+  width: 100%;
+}

@@ -1,0 +1,34 @@
+{
+  "region": "National Average",
+  "source": "HomeAdvisor / Angi 2024 national averages",
+  "tearOffPerSquare": 125,
+  "dumpFeePerSquare": 25,
+  "permitFee": 350,
+  "marginPercent": 0.20,
+  "tiers": [
+    {
+      "name": "Good",
+      "label": "Standard",
+      "materialType": "3-tab",
+      "materialPerSquare": 90,
+      "laborPerSquare": 175,
+      "warranty": "25-year manufacturer"
+    },
+    {
+      "name": "Better",
+      "label": "Recommended",
+      "materialType": "Architectural",
+      "materialPerSquare": 130,
+      "laborPerSquare": 200,
+      "warranty": "30-year manufacturer + 5-year workmanship"
+    },
+    {
+      "name": "Best",
+      "label": "Premium",
+      "materialType": "Impact-resistant",
+      "materialPerSquare": 195,
+      "laborPerSquare": 225,
+      "warranty": "50-year manufacturer + 10-year workmanship"
+    }
+  ]
+}

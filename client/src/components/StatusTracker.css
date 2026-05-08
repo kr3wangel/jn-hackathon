@@ -1,0 +1,71 @@
+.status-tracker {
+  display: flex;
+  justify-content: center;
+  gap: 32px;
+  margin-bottom: 32px;
+  padding: 20px 24px;
+  background: #fff;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+}
+
+.status-step {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.step-indicator {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.step-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--jn-steel);
+}
+
+.step-spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--jn-steel);
+  border-top-color: var(--jn-blue);
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+.check-icon {
+  width: 20px;
+  height: 20px;
+  color: var(--jn-green);
+}
+
+.step-label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--jn-text-secondary);
+}
+
+.status-step.done .step-label {
+  color: var(--jn-text);
+}
+
+.status-step.loading .step-label {
+  color: var(--jn-blue);
+}
+
+.status-error {
+  color: var(--jn-sunset);
+  font-size: 0.875rem;
+  text-align: center;
+  margin-top: 8px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}

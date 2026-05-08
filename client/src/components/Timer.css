@@ -1,0 +1,28 @@
+.timer {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-family: var(--font-mono);
+}
+
+.timer-value {
+  font-size: 1.75rem;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  color: var(--jn-blue);
+}
+
+.timer.done .timer-value {
+  color: var(--jn-green);
+}
+
+.timer.error .timer-value {
+  color: var(--jn-sunset);
+}
+
+.timer-label {
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+  color: var(--jn-text-muted);
+  text-transform: uppercase;
+}
