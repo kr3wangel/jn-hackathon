@@ -106,6 +106,20 @@ export default function App() {
     });
   }
 
+  function handleReset() {
+    if (abortRef.current) abortRef.current.abort();
+    setPipelineState('idle');
+    stateRef.current = 'idle';
+    setSteps({});
+    setImagery(null);
+    setRoofData(null);
+    setRoofOutline(null);
+    setLineItems(null);
+    setVisionData(null);
+    setJnResult(null);
+    setError(null);
+  }
+
   function handleEvent(event, data) {
     if (event === 'step') {
       setSteps((prev) => ({ ...prev, [data.step]: data.status }));
@@ -140,9 +154,11 @@ export default function App() {
       <header className="header">
         <div className="container">
           <div className="header-content">
-            <h1 className="logo">
-              JobNimbus Roofing Estimator
-            </h1>
+            <a className="brand" href="/">
+              <img className="brand-logo" src="/jn-logo.svg" alt="JobNimbus" />
+              <span className="brand-divider" aria-hidden="true" />
+              <span className="brand-product">AI Roof Estimator</span>
+            </a>
             <Timer state={pipelineState} />
           </div>
         </div>
@@ -151,14 +167,24 @@ export default function App() {
       <main className="container main">
         {pipelineState === 'idle' && (
           <div className="hero">
-            <span className="eyebrow">AI-POWERED ROOF INSPECTION</span>
-            <h2>Instant roof inspections,<br />delivered to JobNimbus</h2>
-            <p className="subtitle">Enter a property address to capture roof measurements, AI analysis, and a JobNimbus job in seconds.</p>
+            <span className="eyebrow">For Roofing Contractors</span>
+            <h2>
+              From address to<br />
+              ready-to-quote JobNimbus lead,<br />
+              <span className="hero-accent">in seconds.</span>
+            </h2>
+            <p className="subtitle">
+              Satellite roof measurements, AI inspection notes, and a fully-prepped lead — ready for your pricing.
+            </p>
           </div>
         )}
 
         <div className={`address-input-area ${pipelineState !== 'idle' ? 'compact' : ''}`}>
-          <AddressInput onSubmit={handleSubmit} disabled={pipelineState === 'running'} />
+          <AddressInput
+            onSubmit={handleSubmit}
+            onReset={handleReset}
+            disabled={pipelineState === 'running'}
+          />
         </div>
 
         {(pipelineState === 'running' || pipelineState === 'error') && (
@@ -223,6 +249,20 @@ export default function App() {
           </div>
         )}
       </main>
+
+      <footer className="footer">
+        <div className="container footer-content">
+          <div className="footer-tag">
+            <span className="footer-eyebrow">Built by</span>
+            <span className="footer-product">Angel Herrera</span>
+          </div>
+          <div className="footer-credits">
+            <span>JN Hackathon</span>
+            <span className="footer-dot" aria-hidden="true">·</span>
+            <span>2026</span>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }

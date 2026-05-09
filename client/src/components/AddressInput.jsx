@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import './AddressInput.css';
 
-export default function AddressInput({ onSubmit, disabled }) {
+export default function AddressInput({ onSubmit, onReset, disabled }) {
   const inputRef = useRef(null);
   const [value, setValue] = useState('');
   const [predictions, setPredictions] = useState([]);
@@ -80,6 +80,15 @@ export default function AddressInput({ onSubmit, disabled }) {
     submitText(p.description);
   }
 
+  function handleClear() {
+    setValue('');
+    setPredictions([]);
+    setOpen(false);
+    submittedRef.current = '';
+    if (onReset) onReset();
+    inputRef.current?.focus();
+  }
+
   return (
     <div className="address-input-wrapper">
       <div className="address-input-container">
@@ -103,9 +112,23 @@ export default function AddressInput({ onSubmit, disabled }) {
         />
         {disabled && <div className="input-spinner" />}
         {!disabled && value.trim() && (
-          <button className="submit-btn" onClick={handleSubmit} type="button">
-            Go
-          </button>
+          <>
+            <button
+              className="clear-btn"
+              onClick={handleClear}
+              type="button"
+              aria-label="Clear address and start over"
+              title="Clear"
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
+                <path d="M6 6l12 12" />
+                <path d="M18 6L6 18" />
+              </svg>
+            </button>
+            <button className="submit-btn" onClick={handleSubmit} type="button">
+              Go
+            </button>
+          </>
         )}
         {open && !disabled && predictions.length > 0 && (
           <ul className="predictions-list">

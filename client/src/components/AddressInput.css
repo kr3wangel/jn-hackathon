@@ -81,6 +81,33 @@
   background: var(--jn-deep-blue);
 }
 
+.clear-btn {
+  position: absolute;
+  right: 70px;
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  border-radius: 50%;
+  color: var(--jn-text-muted);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  padding: 0;
+}
+
+.clear-btn:hover {
+  background: var(--jn-cloud);
+  color: var(--jn-text);
+}
+
+.clear-btn svg {
+  width: 14px;
+  height: 14px;
+}
+
 .predictions-list {
   position: absolute;
   top: calc(100% + 4px);
