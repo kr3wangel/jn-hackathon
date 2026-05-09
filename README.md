@@ -47,6 +47,18 @@ Streamed to the client over Server-Sent Events. The client renders progress, an 
 
 ---
 
+## Design decisions
+
+1. **Solar API for measurement, not vision.** Pre-computed roof area, pitch, segments. Numbers are defensible because they come from Google's aerial dataset. Vision is reserved for the qualitative half — material, condition, damage, line enumeration.
+2. **Centroid-closest polygon picker, not largest.** Solar's mask covers a 60m radius and picks up neighbors. The centered house is the one closest to the image center, not the biggest.
+3. **Patio detection via pitch outliers.** Solar's mask includes attached patio covers / carports because they look the same to a satellite. We pick those off by pitch (1:12–3:12 outliers) and erase those bboxes in the GeoTIFF before the contour stage.
+4. **Facet-anchored calibration for interior lines.** Vision enumerates each ridge / hip / valley with notes, but undercounts on complex roofs. We anchor on facet count × 27 ft and only scale model output up if it falls below 90% of expected.
+5. **Tiered pricing using "configured rates" framing.** The portal-spoof reframe lets us present Good / Better / Best as the contractor's own configured rates, not a generic public quote. Sources cited inline in [`pricing.js`](./server/services/pricing.js).
+6. **Roofing squares = `ceil(sqft / 100)`, no waste factor.** Squares are sold as whole units; every contractor uses their own waste %; baking ours in conflicts with their bid math.
+7. **Graceful failure on unsupported properties.** Solar 404 surfaces as a typed `PROPERTY_NOT_FOUND` and the UI renders an empty state with a "Try another address" button. Large commercial buildings short-circuit with a "Custom Quote Required" banner; small commercial runs the full residential flow because a residential crew can handle that roof.
+
+---
+
 ## Tech stack
 
 **Node 22 / Express** backend, **React / Vite** frontend, **Claude Sonnet** for dual-image vision analysis + **Haiku** for property classification, **Google Solar API** for roof geometry + GeoTIFF polygon extraction (`geotiff`, `proj4`, `d3-contour`), **Google Static Maps / Street View** for imagery, **PDFKit** for branded reports, **JobNimbus REST API** for CRM push.
@@ -95,18 +107,6 @@ Every numeric output is independently computed from raw Google data — no comme
 - **Pricing** is a tier engine that applies per-square / per-linear-foot / flat-fee rates to the measured quantities. Defaults are anchored to public industry sources (HomeAdvisor 2024, Roofing Calculator, IBHS Class 4 premium guidance), all cited inline in [`server/services/pricing.js`](./server/services/pricing.js). Framed in the UI as "your configured rates" — the contractor can override.
 
 The single piece of model output we don't independently verify is the street-view condition / material / damage call. That's the qualitative inspection layer; geometry is all measurement.
-
----
-
-## Design decisions
-
-1. **Solar API for measurement, not vision.** Pre-computed roof area, pitch, segments. Numbers are defensible because they come from Google's aerial dataset. Vision is reserved for the qualitative half — material, condition, damage, line enumeration.
-2. **Centroid-closest polygon picker, not largest.** Solar's mask covers a 60m radius and picks up neighbors. The centered house is the one closest to the image center, not the biggest.
-3. **Patio detection via pitch outliers.** Solar's mask includes attached patio covers / carports because they look the same to a satellite. We pick those off by pitch (1:12–3:12 outliers) and erase those bboxes in the GeoTIFF before the contour stage.
-4. **Facet-anchored calibration for interior lines.** Vision enumerates each ridge / hip / valley with notes, but undercounts on complex roofs. We anchor on facet count × 27 ft and only scale model output up if it falls below 90% of expected.
-5. **Tiered pricing using "configured rates" framing.** The portal-spoof reframe lets us present Good / Better / Best as the contractor's own configured rates, not a generic public quote. Sources cited inline in [`pricing.js`](./server/services/pricing.js).
-6. **Roofing squares = `ceil(sqft / 100)`, no waste factor.** Squares are sold as whole units; every contractor uses their own waste %; baking ours in conflicts with their bid math.
-7. **Graceful failure on unsupported properties.** Solar 404 surfaces as a typed `PROPERTY_NOT_FOUND` and the UI renders an empty state with a "Try another address" button — no skeleton-loader hang, no raw API error. Large commercial buildings (warehouses, multi-story office, flat membrane) short-circuit out of pricing with a "Custom Quote Required" banner; small commercial (shops, churches, small offices) runs the full residential flow because a residential crew can handle that roof.
 
 ---
 
