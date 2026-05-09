@@ -49,16 +49,7 @@ Streamed to the client over Server-Sent Events. The client renders progress, an 
 
 ## Tech stack
 
-| Layer | Stack |
-|---|---|
-| Backend | Node 22 + Express, ES modules |
-| Frontend | React + Vite |
-| AI | Anthropic Claude Sonnet (vision) + Haiku (property-type classifier) |
-| Geometry | Google Solar API (`buildingInsights` + `dataLayers`), `geotiff` + `proj4` for GeoTIFF → polygon, `d3-contour` for contour extraction |
-| Imagery | Google Static Maps + Street View |
-| Pricing | Custom tier engine with industry-anchored rates (sources cited inline in [`server/services/pricing.js`](./server/services/pricing.js)) |
-| PDF | `pdfkit` — single-page report, ~300 KB, stable `EST-XXXXXXXX` id |
-| JobNimbus | REST API (`app.jobnimbus.com/api1`) — POST contact → POST job |
+**Node 22 / Express** backend, **React / Vite** frontend, **Claude Sonnet** for dual-image vision analysis + **Haiku** for property classification, **Google Solar API** for roof geometry + GeoTIFF polygon extraction (`geotiff`, `proj4`, `d3-contour`), **Google Static Maps / Street View** for imagery, **PDFKit** for branded reports, **JobNimbus REST API** for CRM push.
 
 ---
 
@@ -82,40 +73,14 @@ Total interior linear feet (ridges + hips + valleys combined) lands within the 2
 
 ## Run it locally
 
-Requires Node 22+ and four API keys:
+Requires Node 22+. Copy `.env.example` to `.env` and fill in:
 
 - `ANTHROPIC_API_KEY` — Sonnet + Haiku
-- `GOOGLE_MAPS_API_KEY` — Geocoding, Places Autocomplete, Static Maps, Street View, **Solar**, Solar dataLayers (the Solar API needs to be explicitly enabled on the project)
-- `JN_API_KEY` — JobNimbus REST API (optional; pipeline skips that step gracefully if absent)
+- `GOOGLE_MAPS_API_KEY` — Geocoding, Places, Static Maps, Street View, Solar API (must be enabled on the GCP project)
+- `JN_API_KEY` — JobNimbus REST API (optional; pipeline skips gracefully if absent)
 
 ```bash
-git clone https://github.com/<you>/jn-hackathon.git
-cd jn-hackathon
-npm install
-cp .env.example .env   # fill in the four keys above
-```
-
-Run both processes (Express API on :3001, Vite dev server on :5173):
-
-```bash
-npm run dev
-```
-
-…or separately if you want each in its own terminal:
-
-```bash
-npm run dev:server
-npm run dev:client
-```
-
-Open `http://localhost:5173`, type an address, watch the pipeline.
-
-To regenerate the example artifacts:
-
-```bash
-node scripts/capture-artifacts.js
-# or one-off:
-node scripts/capture-artifacts.js "1234 Main St, Springfield, MO"
+npm install && npm run dev   # Express on :3001, Vite on :5173
 ```
 
 ---
@@ -133,54 +98,7 @@ The single piece of model output we don't independently verify is the street-vie
 
 ---
 
-## Project structure
-
-```
-server/
-  routes/
-    pipeline.js          SSE pipeline orchestration (estimate id minted here)
-    report.js            /api/report PDF endpoint
-    autocomplete.js      Google Places proxy
-    health.js
-  services/
-    solar.js             Solar buildingInsights wrapper (typed 404 → PROPERTY_NOT_FOUND)
-    roofMask.js          GeoTIFF → polygon, with patio bbox masking
-    patioDetection.js    Pitch-outlier patio / carport / awning detection
-    roofMeasurements.js  Polygon math + facet-anchored line-item calibration
-    imagery.js           Static Maps + Street View URLs
-    geocode.js           Google Geocoding
-    vision.js            Sonnet street view + Sonnet satellite + Haiku classifier
-    pricing.js           Tiered estimate engine, industry-anchored constants
-    jobnimbus.js         JN REST client
-    pdfReport.js         Single-page PDF generator (PDFKit)
-
-client/
-  src/
-    App.jsx              SSE consumer, state machine, PDF download flow
-    components/
-      PortalNav.jsx      Spoofed JobNimbus top nav
-      PageHeader.jsx     "← Roofing Estimator [Beta]" strip
-      AddressInput.jsx   Debounced autocomplete with clear (×) reset
-      PipelineLoader.jsx 4-step tracker + live imagery preview + scan animation
-      RoofOverlay.jsx    Satellite + SVG polygon overlay + sqft label
-      RoofStats.jsx      4 measurement tiles
-      LineItems.jsx      Perimeter & edges / interior lines & flashing
-      PricingEstimate.jsx Good / Better / Best card grid
-      VisionAnalysis.jsx Material & condition / features & obstacles
-      Timer.jsx          Live elapsed timer; freezes on done
-
-scripts/
-  capture-artifacts.js   Regenerate examples/<slug>/{satellite.jpg, streetview.jpg, output.json, report.pdf}
-  benchmark.js           Sweep model overrides on the calibration set
-  BENCHMARK-PLAN.md
-  benchmark-results.json
-
-examples/                Per-property artifact captures (5 benchmark addresses)
-```
-
----
-
-## Notable design decisions
+## Design decisions
 
 1. **Solar API for measurement, not vision.** Pre-computed roof area, pitch, segments. Numbers are defensible because they come from Google's aerial dataset. Vision is reserved for the qualitative half — material, condition, damage, line enumeration.
 2. **Centroid-closest polygon picker, not largest.** Solar's mask covers a 60m radius and picks up neighbors. The centered house is the one closest to the image center, not the biggest.
