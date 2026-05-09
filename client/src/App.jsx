@@ -8,6 +8,7 @@ import RoofStats from './components/RoofStats';
 import VisionAnalysis from './components/VisionAnalysis';
 import RoofOverlay from './components/RoofOverlay';
 import LineItems from './components/LineItems';
+import PricingEstimate from './components/PricingEstimate';
 import './styles/app.css';
 
 const STEPS = ['imagery', 'vision', 'jobnimbus'];
@@ -19,6 +20,7 @@ export default function App() {
   const [roofData, setRoofData] = useState(null);
   const [roofOutline, setRoofOutline] = useState(null);
   const [lineItems, setLineItems] = useState(null);
+  const [pricing, setPricing] = useState(null);
   const [visionData, setVisionData] = useState(null);
   const [jnResult, setJnResult] = useState(null);
   const [error, setError] = useState(null);
@@ -38,6 +40,7 @@ export default function App() {
     setRoofData(null);
     setRoofOutline(null);
     setLineItems(null);
+    setPricing(null);
     setVisionData(null);
     setJnResult(null);
     setError(null);
@@ -117,6 +120,7 @@ export default function App() {
     setRoofData(null);
     setRoofOutline(null);
     setLineItems(null);
+    setPricing(null);
     setVisionData(null);
     setJnResult(null);
     setError(null);
@@ -142,6 +146,7 @@ export default function App() {
       if (data.roofData) setRoofData(data.roofData);
       if (data.roofOutline) setRoofOutline(data.roofOutline);
       if (data.lineItems) setLineItems(data.lineItems);
+      if (data.pricing) setPricing(data.pricing);
       if (data.visionData) setVisionData(data.visionData);
       if (data.jobnimbus) setJnResult(data.jobnimbus);
     } else if (event === 'error') {
@@ -205,6 +210,8 @@ export default function App() {
             {roofData && <RoofStats data={roofData} visionData={visionData} />}
 
             {lineItems && <LineItems data={lineItems} />}
+
+            {pricing && <PricingEstimate data={pricing} />}
 
             {visionData && <VisionAnalysis data={visionData} />}
 

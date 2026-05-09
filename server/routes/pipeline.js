@@ -3,6 +3,7 @@ import { fetchImagery } from '../services/imagery.js';
 import { fetchBuildingInsights } from '../services/solar.js';
 import { fetchRoofPolygon } from '../services/roofMask.js';
 import { computeLineItems } from '../services/roofMeasurements.js';
+import { computeTieredPricing } from '../services/pricing.js';
 import { analyzeProperty } from '../services/vision.js';
 import { pushToJobNimbus } from '../services/jobnimbus.js';
 import { geocodeAddress } from '../services/geocode.js';
@@ -103,6 +104,13 @@ pipelineRouter.post('/pipeline', async (req, res) => {
       visionData,
     });
 
+    // Tiered pricing — applies the contractor's "configured rates" to the
+    // measured quantities. Flashing input combines wall + step flashing.
+    const pricing = computeTieredPricing({
+      totalAreaSqft: roofData.totalAreaSqft,
+      flashingFeet: (lineItems?.wallFlashingFeet || 0) + (lineItems?.stepFlashingFeet || 0),
+    });
+
     // Step 3: JobNimbus (requires JN_API_KEY)
     let jnResult = null;
     if (process.env.JN_API_KEY) {
@@ -124,6 +132,7 @@ pipelineRouter.post('/pipeline', async (req, res) => {
       roofOutline,
       visionData,
       lineItems,
+      pricing,
       jobnimbus: jnResult,
     });
   } catch (err) {
