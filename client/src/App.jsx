@@ -1,7 +1,7 @@
 import React, { useRef, useState } from 'react';
 import AddressInput from './components/AddressInput';
 import Timer from './components/Timer';
-import StatusTracker from './components/StatusTracker';
+import PipelineLoader from './components/PipelineLoader';
 import RoofStats from './components/RoofStats';
 import VisionAnalysis from './components/VisionAnalysis';
 import RoofOverlay from './components/RoofOverlay';
@@ -161,8 +161,14 @@ export default function App() {
           <AddressInput onSubmit={handleSubmit} disabled={pipelineState === 'running'} />
         </div>
 
-        {pipelineState !== 'idle' && (
-          <StatusTracker steps={STEPS} stepState={steps} pipelineState={pipelineState} error={error} />
+        {(pipelineState === 'running' || pipelineState === 'error') && (
+          <PipelineLoader
+            steps={STEPS}
+            stepState={steps}
+            pipelineState={pipelineState}
+            imagery={imagery}
+            error={error}
+          />
         )}
 
         {(pipelineState === 'done' || pipelineState === 'error') && (

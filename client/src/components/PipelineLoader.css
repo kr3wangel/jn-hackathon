@@ -1,0 +1,328 @@
+.pipeline-loader {
+  margin-bottom: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* ---------- Step tracker ---------- */
+.pl-steps {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  background: #fff;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  padding: 18px 24px;
+}
+
+.pl-step {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 10px;
+  border-radius: var(--radius-md);
+  transition: all 0.3s ease;
+}
+
+.pl-step-icon {
+  position: relative;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--jn-cloud);
+  color: var(--jn-text-muted);
+  flex-shrink: 0;
+  transition: all 0.3s ease;
+}
+
+.pl-step-icon svg {
+  width: 18px;
+  height: 18px;
+}
+
+.pl-step-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  line-height: 1.2;
+}
+
+.pl-step-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--jn-text-secondary);
+  letter-spacing: -0.005em;
+}
+
+.pl-step-sub {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.04em;
+  color: var(--jn-text-muted);
+  text-transform: uppercase;
+}
+
+.pl-step--loading .pl-step-icon {
+  background: var(--jn-blue);
+  color: #fff;
+}
+
+.pl-step--loading .pl-step-label {
+  color: var(--jn-deep-blue);
+}
+
+.pl-step--done .pl-step-icon {
+  background: var(--jn-green);
+  color: #fff;
+}
+
+.pl-step--done .pl-step-label {
+  color: var(--jn-text);
+}
+
+.pl-step-pulse {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 2px solid var(--jn-blue);
+  animation: pl-pulse 1.6s ease-out infinite;
+}
+
+@keyframes pl-pulse {
+  0% { transform: scale(1); opacity: 0.7; }
+  100% { transform: scale(1.45); opacity: 0; }
+}
+
+.pl-connector {
+  flex: 0 0 56px;
+  height: 2px;
+  background: var(--jn-cloud);
+  position: relative;
+  overflow: hidden;
+  border-radius: 2px;
+}
+
+.pl-connector::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, var(--jn-blue), var(--jn-green));
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.5s ease;
+}
+
+.pl-connector--done::after {
+  transform: scaleX(1);
+}
+
+/* ---------- Stage (preview area) ---------- */
+.pl-stage {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.pl-preview,
+.pl-skeleton {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+.pl-tile {
+  background: #fff;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+  display: flex;
+  flex-direction: column;
+  transition: opacity 0.3s ease;
+}
+
+.pl-tile--dimmed {
+  opacity: 0.85;
+}
+
+.pl-tile-label {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.05em;
+  color: var(--jn-text-muted);
+  padding: 12px 16px;
+  text-transform: uppercase;
+}
+
+.pl-tile-canvas {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: var(--jn-cloud);
+  flex: 1;
+  overflow: hidden;
+}
+
+.pl-tile-canvas img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  animation: pl-fade-in 0.4s ease-out;
+}
+
+@keyframes pl-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Animated scan sweep across the imagery while AI is analyzing */
+.pl-scan {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 60px;
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    rgba(57, 104, 198, 0.0) 20%,
+    rgba(57, 104, 198, 0.45) 80%,
+    rgba(57, 104, 198, 0.9) 100%
+  );
+  border-bottom: 1.5px solid rgba(57, 104, 198, 0.95);
+  box-shadow: 0 0 18px rgba(57, 104, 198, 0.65);
+  animation: pl-scan 2.6s linear infinite;
+  pointer-events: none;
+  top: -60px;
+}
+
+@keyframes pl-scan {
+  0% { top: -60px; }
+  100% { top: 100%; }
+}
+
+/* Subtle grid overlay during AI scan to feel "instrumented" */
+.pl-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(57, 104, 198, 0.18) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(57, 104, 198, 0.18) 1px, transparent 1px);
+  background-size: 36px 36px;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  animation: pl-grid-fade 0.4s ease-out;
+}
+
+@keyframes pl-grid-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* ---------- Skeleton (pre-imagery) ---------- */
+.pl-tile-canvas--skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--jn-cloud) 0%,
+    #eef2fa 50%,
+    var(--jn-cloud) 100%
+  );
+  background-size: 200% 100%;
+  animation: pl-shimmer-bg 1.6s ease-in-out infinite;
+}
+
+.pl-shimmer {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    115deg,
+    transparent 30%,
+    rgba(255, 255, 255, 0.5) 50%,
+    transparent 70%
+  );
+  animation: pl-shimmer 1.8s linear infinite;
+}
+
+@keyframes pl-shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+@keyframes pl-shimmer-bg {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ---------- Status message ---------- */
+.pl-status {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 14px 20px;
+  background: #fff;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  letter-spacing: 0.01em;
+  color: var(--jn-text-secondary);
+}
+
+.pl-status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--jn-blue);
+  animation: pl-blink 1.2s ease-in-out infinite;
+  flex-shrink: 0;
+}
+
+@keyframes pl-blink {
+  0%, 100% { opacity: 0.35; transform: scale(0.85); }
+  50% { opacity: 1; transform: scale(1.15); }
+}
+
+.pl-status-text {
+  display: inline-block;
+  animation: pl-text-in 0.35s ease-out;
+}
+
+@keyframes pl-text-in {
+  from { opacity: 0; transform: translateY(2px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.pl-error {
+  color: var(--jn-sunset);
+  font-size: 0.875rem;
+  text-align: center;
+  padding: 12px;
+  background: #fff5f1;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--jn-sunset);
+}
+
+@media (max-width: 720px) {
+  .pl-steps {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .pl-connector {
+    display: none;
+  }
+  .pl-step-sub {
+    display: none;
+  }
+  .pl-preview,
+  .pl-skeleton {
+    grid-template-columns: 1fr;
+  }
+}
