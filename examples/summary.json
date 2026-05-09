@@ -1,0 +1,56 @@
+{
+  "runAt": "2026-05-09T18:19:00.959Z",
+  "summary": [
+    {
+      "address": "3561 E 102nd Ct, Thornton, CO 80229",
+      "slug": "3561-e-102nd-ct-thornton-co-80229",
+      "sqft": 2081,
+      "squares": 21,
+      "pitch": "9:12",
+      "facets": 9,
+      "estimateId": "A5FE4FBA",
+      "pipelineSec": "22.4"
+    },
+    {
+      "address": "1612 S Canton Ave, Springfield, MO 65802",
+      "slug": "1612-s-canton-ave-springfield-mo-65802",
+      "sqft": 2757,
+      "squares": 28,
+      "pitch": "7:12",
+      "facets": 10,
+      "estimateId": "AE82AE16",
+      "pipelineSec": "19.8"
+    },
+    {
+      "address": "6310 Laguna Bay Court, Houston, TX 77041",
+      "slug": "6310-laguna-bay-court-houston-tx-77041",
+      "sqft": 4186,
+      "squares": 42,
+      "pitch": "8:12",
+      "facets": 20,
+      "estimateId": "D3252466",
+      "pipelineSec": "22.0"
+    },
+    {
+      "address": "3820 E Rosebrier St, Springfield, MO 65809",
+      "slug": "3820-e-rosebrier-st-springfield-mo-65809",
+      "sqft": 5566,
+      "squares": 56,
+      "pitch": "6:12",
+      "facets": 18,
+      "estimateId": "A92533B8",
+      "pipelineSec": "23.0"
+    },
+    {
+      "address": "1261 20th Street, Newport News, VA 23607",
+      "slug": "1261-20th-street-newport-news-va-23607",
+      "sqft": 6118,
+      "squares": 62,
+      "pitch": "4:12",
+      "facets": 6,
+      "estimateId": "A0F37036",
+      "pipelineSec": "13.6"
+    }
+  ],
+  "failures": []
+}

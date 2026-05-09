@@ -1,0 +1,1463 @@
+{
+  "message": "Pipeline complete",
+  "estimateId": "A5FE4FBA",
+  "imagery": {
+    "satellite": "https://maps.googleapis.com/maps/api/staticmap?center=39.8811632%2C-104.9453839&zoom=20&size=640x640&maptype=satellite&key=AIzaSyCGsfzqH97EUNuyoXgVX8f-qqmow2xjUqM",
+    "streetView": "https://maps.googleapis.com/maps/api/streetview?location=39.8811632%2C-104.9453839&size=640x480&key=AIzaSyCGsfzqH97EUNuyoXgVX8f-qqmow2xjUqM"
+  },
+  "roofData": {
+    "totalAreaSqft": 2081,
+    "fullStructureSqft": 2081,
+    "patioSqft": 0,
+    "patioInfo": {
+      "patioSegments": [],
+      "totalPatioSqft": 0,
+      "dominantPitchDegrees": 36.008990603744465,
+      "confidence": "high",
+      "reason": "no pitch outliers detected"
+    },
+    "roofingSquares": 21,
+    "facetCount": 9,
+    "fullStructureFacetCount": 9,
+    "avgPitchDegrees": 35.4,
+    "avgPitchRatio": "9:12",
+    "segments": [
+      {
+        "index": 0,
+        "areaSqft": 553.61038824,
+        "pitchDegrees": 37.046524,
+        "pitchRatio": "9:12",
+        "azimuthDegrees": 270.19376,
+        "boundingBox": {
+          "sw": {
+            "latitude": 39.8811059,
+            "longitude": -104.9454469
+          },
+          "ne": {
+            "latitude": 39.8812141,
+            "longitude": -104.94539069999999
+          }
+        }
+      },
+      {
+        "index": 1,
+        "areaSqft": 308.924388864,
+        "pitchDegrees": 34.295876,
+        "pitchRatio": "8:12",
+        "azimuthDegrees": 104.4766,
+        "boundingBox": {
+          "sw": {
+            "latitude": 39.881126599999995,
+            "longitude": -104.94537319999999
+          },
+          "ne": {
+            "latitude": 39.8811672,
+            "longitude": -104.9452972
+          }
+        }
+      },
+      {
+        "index": 2,
+        "areaSqft": 220.193163216,
+        "pitchDegrees": 34.195652,
+        "pitchRatio": "8:12",
+        "azimuthDegrees": 90.19977,
+        "boundingBox": {
+          "sw": {
+            "latitude": 39.881162599999996,
+            "longitude": -104.94539069999999
+          },
+          "ne": {
+            "latitude": 39.881214,
+            "longitude": -104.9453439
+          }
+        }
+      },
+      {
+        "index": 3,
+        "areaSqft": 242.89331975999997,
+        "pitchDegrees": 41.539993,
+        "pitchRatio": "11:12",
+        "azimuthDegrees": 100.40342,
+        "boundingBox": {
+          "sw": {
+            "latitude": 39.8810789,
+            "longitude": -104.9454025
+          },
+          "ne": {
+            "latitude": 39.8811329,
+            "longitude": -104.94536149999999
+          }
+        }
+      },
+      {
+        "index": 4,
+        "areaSqft": 189.340955856,
+        "pitchDegrees": 34.364902,
+        "pitchRatio": "8:12",
+        "azimuthDegrees": 359.73615,
+        "boundingBox": {
+          "sw": {
+            "latitude": 39.881187,
+            "longitude": -104.94536149999999
+          },
+          "ne": {
+            "latitude": 39.881214,
+            "longitude": -104.94529709999999
+          }
+        }
+      },
+      {
+        "index": 5,
+        "areaSqft": 164.89276876799997,
+        "pitchDegrees": 34.066517,
+        "pitchRatio": "8:12",
+        "azimuthDegrees": 178.58325,
+        "boundingBox": {
+          "sw": {
+            "latitude": 39.8811311,
+            "longitude": -104.9454142
+          },
+          "ne": {
+            "latitude": 39.8811672,
+            "longitude": -104.9453592
+          }
+        }
+      },
+      {
+        "index": 6,
+        "areaSqft": 160.686240624,
+        "pitchDegrees": 37.204388,
+        "pitchRatio": "9:12",
+        "azimuthDegrees": 176.52472,
+        "boundingBox": {
+          "sw": {
+            "latitude": 39.881162599999996,
+            "longitude": -104.94536149999999
+          },
+          "ne": {
+            "latitude": 39.881187,
+            "longitude": -104.9452972
+          }
+        }
+      },
+      {
+        "index": 7,
+        "areaSqft": 147.222629424,
+        "pitchDegrees": 36.179077,
+        "pitchRatio": "9:12",
+        "azimuthDegrees": 257.3754,
+        "boundingBox": {
+          "sw": {
+            "latitude": 39.8810789,
+            "longitude": -104.945447
+          },
+          "ne": {
+            "latitude": 39.8811086,
+            "longitude": -104.9454025
+          }
+        }
+      },
+      {
+        "index": 8,
+        "areaSqft": 93.06167972399999,
+        "pitchDegrees": 29.831835,
+        "pitchRatio": "7:12",
+        "azimuthDegrees": 93.38038,
+        "boundingBox": {
+          "sw": {
+            "latitude": 39.8811059,
+            "longitude": -104.9454177
+          },
+          "ne": {
+            "latitude": 39.8811465,
+            "longitude": -104.94539429999999
+          }
+        }
+      }
+    ],
+    "allSegments": [
+      {
+        "index": 0,
+        "areaSqft": 553.61038824,
+        "pitchDegrees": 37.046524,
+        "pitchRatio": "9:12",
+        "azimuthDegrees": 270.19376,
+        "boundingBox": {
+          "sw": {
+            "latitude": 39.8811059,
+            "longitude": -104.9454469
+          },
+          "ne": {
+            "latitude": 39.8812141,
+            "longitude": -104.94539069999999
+          }
+        }
+      },
+      {
+        "index": 1,
+        "areaSqft": 308.924388864,
+        "pitchDegrees": 34.295876,
+        "pitchRatio": "8:12",
+        "azimuthDegrees": 104.4766,
+        "boundingBox": {
+          "sw": {
+            "latitude": 39.881126599999995,
+            "longitude": -104.94537319999999
+          },
+          "ne": {
+            "latitude": 39.8811672,
+            "longitude": -104.9452972
+          }
+        }
+      },
+      {
+        "index": 2,
+        "areaSqft": 220.193163216,
+        "pitchDegrees": 34.195652,
+        "pitchRatio": "8:12",
+        "azimuthDegrees": 90.19977,
+        "boundingBox": {
+          "sw": {
+            "latitude": 39.881162599999996,
+            "longitude": -104.94539069999999
+          },
+          "ne": {
+            "latitude": 39.881214,
+            "longitude": -104.9453439
+          }
+        }
+      },
+      {
+        "index": 3,
+        "areaSqft": 242.89331975999997,
+        "pitchDegrees": 41.539993,
+        "pitchRatio": "11:12",
+        "azimuthDegrees": 100.40342,
+        "boundingBox": {
+          "sw": {
+            "latitude": 39.8810789,
+            "longitude": -104.9454025
+          },
+          "ne": {
+            "latitude": 39.8811329,
+            "longitude": -104.94536149999999
+          }
+        }
+      },
+      {
+        "index": 4,
+        "areaSqft": 189.340955856,
+        "pitchDegrees": 34.364902,
+        "pitchRatio": "8:12",
+        "azimuthDegrees": 359.73615,
+        "boundingBox": {
+          "sw": {
+            "latitude": 39.881187,
+            "longitude": -104.94536149999999
+          },
+          "ne": {
+            "latitude": 39.881214,
+            "longitude": -104.94529709999999
+          }
+        }
+      },
+      {
+        "index": 5,
+        "areaSqft": 164.89276876799997,
+        "pitchDegrees": 34.066517,
+        "pitchRatio": "8:12",
+        "azimuthDegrees": 178.58325,
+        "boundingBox": {
+          "sw": {
+            "latitude": 39.8811311,
+            "longitude": -104.9454142
+          },
+          "ne": {
+            "latitude": 39.8811672,
+            "longitude": -104.9453592
+          }
+        }
+      },
+      {
+        "index": 6,
+        "areaSqft": 160.686240624,
+        "pitchDegrees": 37.204388,
+        "pitchRatio": "9:12",
+        "azimuthDegrees": 176.52472,
+        "boundingBox": {
+          "sw": {
+            "latitude": 39.881162599999996,
+            "longitude": -104.94536149999999
+          },
+          "ne": {
+            "latitude": 39.881187,
+            "longitude": -104.9452972
+          }
+        }
+      },
+      {
+        "index": 7,
+        "areaSqft": 147.222629424,
+        "pitchDegrees": 36.179077,
+        "pitchRatio": "9:12",
+        "azimuthDegrees": 257.3754,
+        "boundingBox": {
+          "sw": {
+            "latitude": 39.8810789,
+            "longitude": -104.945447
+          },
+          "ne": {
+            "latitude": 39.8811086,
+            "longitude": -104.9454025
+          }
+        }
+      },
+      {
+        "index": 8,
+        "areaSqft": 93.06167972399999,
+        "pitchDegrees": 29.831835,
+        "pitchRatio": "7:12",
+        "azimuthDegrees": 93.38038,
+        "boundingBox": {
+          "sw": {
+            "latitude": 39.8811059,
+            "longitude": -104.9454177
+          },
+          "ne": {
+            "latitude": 39.8811465,
+            "longitude": -104.94539429999999
+          }
+        }
+      }
+    ],
+    "imageryDate": {
+      "year": 2024,
+      "month": 7,
+      "day": 28
+    },
+    "imageryQuality": "HIGH",
+    "postalCode": "80229"
+  },
+  "roofOutline": {
+    "polygon": [
+      {
+        "x": 0.5191949897212907,
+        "y": 0.6263307590503245
+      },
+      {
+        "x": 0.529439112439286,
+        "y": 0.5852982905693352
+      },
+      {
+        "x": 0.5430687873857096,
+        "y": 0.5784668645588681
+      },
+      {
+        "x": 0.5464855822967365,
+        "y": 0.5613694747677073
+      },
+      {
+        "x": 0.5856620543170721,
+        "y": 0.5562636928632856
+      },
+      {
+        "x": 0.6009980537928641,
+        "y": 0.5443034735973924
+      },
+      {
+        "x": 0.6010710399132222,
+        "y": 0.4246070059016347
+      },
+      {
+        "x": 0.4358625397086143,
+        "y": 0.4227956475224346
+      },
+      {
+        "x": 0.4272270051180385,
+        "y": 0.6194345563882961
+      },
+      {
+        "x": 0.4391441207961179,
+        "y": 0.6279916010797024
+      }
+    ],
+    "geoPolygon": [
+      {
+        "lat": 39.88107999294035,
+        "lng": -104.94536742480817
+      },
+      {
+        "lat": 39.881082245436396,
+        "lng": -104.94536742302061
+      },
+      {
+        "lat": 39.88108449793245,
+        "lng": -104.94536742123309
+      },
+      {
+        "lat": 39.88108675042851,
+        "lng": -104.94536741944555
+      },
+      {
+        "lat": 39.88108787598794,
+        "lng": -104.94536595669373
+      },
+      {
+        "lat": 39.88108787461072,
+        "lng": -104.94536303297771
+      },
+      {
+        "lat": 39.88108900017009,
+        "lng": -104.94536157022581
+      },
+      {
+        "lat": 39.881091252666145,
+        "lng": -104.94536156843809
+      },
+      {
+        "lat": 39.881093505162184,
+        "lng": -104.94536156665036
+      },
+      {
+        "lat": 39.88109575765824,
+        "lng": -104.94536156486264
+      },
+      {
+        "lat": 39.88109688321759,
+        "lng": -104.94536010211054
+      },
+      {
+        "lat": 39.88109800877694,
+        "lng": -104.94535863935843
+      },
+      {
+        "lat": 39.88110026127298,
+        "lng": -104.94535863757059
+      },
+      {
+        "lat": 39.88110251376902,
+        "lng": -104.94535863578277
+      },
+      {
+        "lat": 39.881104766265075,
+        "lng": -104.94535863399494
+      },
+      {
+        "lat": 39.881107018761114,
+        "lng": -104.9453586322071
+      },
+      {
+        "lat": 39.881108144320436,
+        "lng": -104.94535716945475
+      },
+      {
+        "lat": 39.88110926987975,
+        "lng": -104.94535570670233
+      },
+      {
+        "lat": 39.88111039543902,
+        "lng": -104.94535424394988
+      },
+      {
+        "lat": 39.8811103940615,
+        "lng": -104.94535132023287
+      },
+      {
+        "lat": 39.881110392683894,
+        "lng": -104.94534839651587
+      },
+      {
+        "lat": 39.88111151824308,
+        "lng": -104.94534693376326
+      },
+      {
+        "lat": 39.881113770739134,
+        "lng": -104.94534693197505
+      },
+      {
+        "lat": 39.88111489629829,
+        "lng": -104.94534546922233
+      },
+      {
+        "lat": 39.88111602185745,
+        "lng": -104.94534400646958
+      },
+      {
+        "lat": 39.88111827435349,
+        "lng": -104.94534400468129
+      },
+      {
+        "lat": 39.88112052684952,
+        "lng": -104.94534400289298
+      },
+      {
+        "lat": 39.88112277934557,
+        "lng": -104.94534400110467
+      },
+      {
+        "lat": 39.881123904904705,
+        "lng": -104.94534253835172
+      },
+      {
+        "lat": 39.88112390352687,
+        "lng": -104.94533961463415
+      },
+      {
+        "lat": 39.88112502908595,
+        "lng": -104.94533815188113
+      },
+      {
+        "lat": 39.881126154645,
+        "lng": -104.94533668912804
+      },
+      {
+        "lat": 39.88112615326704,
+        "lng": -104.94533376541037
+      },
+      {
+        "lat": 39.88112615188899,
+        "lng": -104.9453308416927
+      },
+      {
+        "lat": 39.88112615051088,
+        "lng": -104.94532791797502
+      },
+      {
+        "lat": 39.88112614913267,
+        "lng": -104.94532499425735
+      },
+      {
+        "lat": 39.88112614775441,
+        "lng": -104.94532207053969
+      },
+      {
+        "lat": 39.881126146376076,
+        "lng": -104.94531914682202
+      },
+      {
+        "lat": 39.88112614499766,
+        "lng": -104.94531622310434
+      },
+      {
+        "lat": 39.88112614361918,
+        "lng": -104.94531329938668
+      },
+      {
+        "lat": 39.8811261422406,
+        "lng": -104.94531037566901
+      },
+      {
+        "lat": 39.881127267799314,
+        "lng": -104.94530891291545
+      },
+      {
+        "lat": 39.881128393358004,
+        "lng": -104.94530745016183
+      },
+      {
+        "lat": 39.881128391979296,
+        "lng": -104.94530452644406
+      },
+      {
+        "lat": 39.88112839060051,
+        "lng": -104.94530160272632
+      },
+      {
+        "lat": 39.8811295161591,
+        "lng": -104.94530013997255
+      },
+      {
+        "lat": 39.88113176865513,
+        "lng": -104.9453001381828
+      },
+      {
+        "lat": 39.88113289421371,
+        "lng": -104.94529867542896
+      },
+      {
+        "lat": 39.881134019772276,
+        "lng": -104.94529721267507
+      },
+      {
+        "lat": 39.881136272268286,
+        "lng": -104.94529721088522
+      },
+      {
+        "lat": 39.88113852476433,
+        "lng": -104.94529720909539
+      },
+      {
+        "lat": 39.88114077726036,
+        "lng": -104.94529720730556
+      },
+      {
+        "lat": 39.88114302975639,
+        "lng": -104.9452972055157
+      },
+      {
+        "lat": 39.881145282252426,
+        "lng": -104.94529720372587
+      },
+      {
+        "lat": 39.88114753474844,
+        "lng": -104.94529720193603
+      },
+      {
+        "lat": 39.881149787244475,
+        "lng": -104.94529720014619
+      },
+      {
+        "lat": 39.881152039740506,
+        "lng": -104.94529719835636
+      },
+      {
+        "lat": 39.881154292236516,
+        "lng": -104.9452971965665
+      },
+      {
+        "lat": 39.88115654473254,
+        "lng": -104.94529719477666
+      },
+      {
+        "lat": 39.881158797228565,
+        "lng": -104.94529719298683
+      },
+      {
+        "lat": 39.88116104972458,
+        "lng": -104.94529719119699
+      },
+      {
+        "lat": 39.8811633022206,
+        "lng": -104.94529718940714
+      },
+      {
+        "lat": 39.881165554716624,
+        "lng": -104.9452971876173
+      },
+      {
+        "lat": 39.881167807212634,
+        "lng": -104.94529718582746
+      },
+      {
+        "lat": 39.88117005970866,
+        "lng": -104.94529718403763
+      },
+      {
+        "lat": 39.88117231220466,
+        "lng": -104.94529718224777
+      },
+      {
+        "lat": 39.881174564700686,
+        "lng": -104.94529718045793
+      },
+      {
+        "lat": 39.8811768171967,
+        "lng": -104.9452971786681
+      },
+      {
+        "lat": 39.88117906969271,
+        "lng": -104.94529717687824
+      },
+      {
+        "lat": 39.88118132218872,
+        "lng": -104.9452971750884
+      },
+      {
+        "lat": 39.881183574684734,
+        "lng": -104.94529717329857
+      },
+      {
+        "lat": 39.881185827180744,
+        "lng": -104.94529717150871
+      },
+      {
+        "lat": 39.88118807967676,
+        "lng": -104.94529716971887
+      },
+      {
+        "lat": 39.881190332172764,
+        "lng": -104.94529716792903
+      },
+      {
+        "lat": 39.88119258466877,
+        "lng": -104.94529716613918
+      },
+      {
+        "lat": 39.88119483716478,
+        "lng": -104.94529716434936
+      },
+      {
+        "lat": 39.88119708966079,
+        "lng": -104.9452971625595
+      },
+      {
+        "lat": 39.881199342156776,
+        "lng": -104.94529716076966
+      },
+      {
+        "lat": 39.8812015946528,
+        "lng": -104.94529715897983
+      },
+      {
+        "lat": 39.8812038471488,
+        "lng": -104.94529715718996
+      },
+      {
+        "lat": 39.8812060996448,
+        "lng": -104.94529715540011
+      },
+      {
+        "lat": 39.8812083521408,
+        "lng": -104.94529715361028
+      },
+      {
+        "lat": 39.881210604636806,
+        "lng": -104.94529715182044
+      },
+      {
+        "lat": 39.88121285713281,
+        "lng": -104.94529715003058
+      },
+      {
+        "lat": 39.881213984070264,
+        "lng": -104.94529861099636
+      },
+      {
+        "lat": 39.88121398544912,
+        "lng": -104.94530153471774
+      },
+      {
+        "lat": 39.881213986827916,
+        "lng": -104.94530445843917
+      },
+      {
+        "lat": 39.881213988206625,
+        "lng": -104.94530738216055
+      },
+      {
+        "lat": 39.88121398958527,
+        "lng": -104.94531030588195
+      },
+      {
+        "lat": 39.88121399096383,
+        "lng": -104.94531322960337
+      },
+      {
+        "lat": 39.88121399234232,
+        "lng": -104.94531615332474
+      },
+      {
+        "lat": 39.88121399372074,
+        "lng": -104.94531907704616
+      },
+      {
+        "lat": 39.881213995099074,
+        "lng": -104.94532200076756
+      },
+      {
+        "lat": 39.881213996477356,
+        "lng": -104.94532492448896
+      },
+      {
+        "lat": 39.88121399785555,
+        "lng": -104.94532784821035
+      },
+      {
+        "lat": 39.88121399923367,
+        "lng": -104.94533077193176
+      },
+      {
+        "lat": 39.881214000611735,
+        "lng": -104.94533369565316
+      },
+      {
+        "lat": 39.881214001989704,
+        "lng": -104.94533661937457
+      },
+      {
+        "lat": 39.88121400336761,
+        "lng": -104.94533954309597
+      },
+      {
+        "lat": 39.88121400474544,
+        "lng": -104.94534246681735
+      },
+      {
+        "lat": 39.881214006123194,
+        "lng": -104.94534539053876
+      },
+      {
+        "lat": 39.88121400750089,
+        "lng": -104.94534831426016
+      },
+      {
+        "lat": 39.88121400887847,
+        "lng": -104.94535123798158
+      },
+      {
+        "lat": 39.881214010256016,
+        "lng": -104.94535416170298
+      },
+      {
+        "lat": 39.88121401163348,
+        "lng": -104.94535708542438
+      },
+      {
+        "lat": 39.88121401301087,
+        "lng": -104.94536000914579
+      },
+      {
+        "lat": 39.88121401438818,
+        "lng": -104.94536293286717
+      },
+      {
+        "lat": 39.88121401576542,
+        "lng": -104.9453658565886
+      },
+      {
+        "lat": 39.88121401714258,
+        "lng": -104.94536878030999
+      },
+      {
+        "lat": 39.88121401851967,
+        "lng": -104.94537170403139
+      },
+      {
+        "lat": 39.88121401989669,
+        "lng": -104.9453746277528
+      },
+      {
+        "lat": 39.88121402127364,
+        "lng": -104.9453775514742
+      },
+      {
+        "lat": 39.88121402265051,
+        "lng": -104.9453804751956
+      },
+      {
+        "lat": 39.881214024027315,
+        "lng": -104.94538339891702
+      },
+      {
+        "lat": 39.88121402540402,
+        "lng": -104.94538632263841
+      },
+      {
+        "lat": 39.881214026780675,
+        "lng": -104.94538924635982
+      },
+      {
+        "lat": 39.88121402815725,
+        "lng": -104.94539217008122
+      },
+      {
+        "lat": 39.88121402953375,
+        "lng": -104.94539509380265
+      },
+      {
+        "lat": 39.88121403091018,
+        "lng": -104.94539801752404
+      },
+      {
+        "lat": 39.881214032286536,
+        "lng": -104.94540094124542
+      },
+      {
+        "lat": 39.88121403366282,
+        "lng": -104.94540386496685
+      },
+      {
+        "lat": 39.88121403503904,
+        "lng": -104.94540678868825
+      },
+      {
+        "lat": 39.88121403641516,
+        "lng": -104.94540971240966
+      },
+      {
+        "lat": 39.881214037791224,
+        "lng": -104.94541263613108
+      },
+      {
+        "lat": 39.88121403916721,
+        "lng": -104.94541555985248
+      },
+      {
+        "lat": 39.88121404054314,
+        "lng": -104.94541848357389
+      },
+      {
+        "lat": 39.88121404191897,
+        "lng": -104.94542140729529
+      },
+      {
+        "lat": 39.88121404329472,
+        "lng": -104.94542433101671
+      },
+      {
+        "lat": 39.88121404467042,
+        "lng": -104.9454272547381
+      },
+      {
+        "lat": 39.88121404604604,
+        "lng": -104.94543017845952
+      },
+      {
+        "lat": 39.88121404742159,
+        "lng": -104.94543310218093
+      },
+      {
+        "lat": 39.88121404879707,
+        "lng": -104.94543602590234
+      },
+      {
+        "lat": 39.88121405017245,
+        "lng": -104.94543894962374
+      },
+      {
+        "lat": 39.88121292461212,
+        "lng": -104.94544041237702
+      },
+      {
+        "lat": 39.881211799051755,
+        "lng": -104.94544187513026
+      },
+      {
+        "lat": 39.881210673491395,
+        "lng": -104.94544333788343
+      },
+      {
+        "lat": 39.88120842099539,
+        "lng": -104.94544333966851
+      },
+      {
+        "lat": 39.88120616849938,
+        "lng": -104.94544334145357
+      },
+      {
+        "lat": 39.88120391600338,
+        "lng": -104.94544334323864
+      },
+      {
+        "lat": 39.881201663507376,
+        "lng": -104.94544334502369
+      },
+      {
+        "lat": 39.88119941101136,
+        "lng": -104.94544334680876
+      },
+      {
+        "lat": 39.881197158515356,
+        "lng": -104.94544334859381
+      },
+      {
+        "lat": 39.88119490601933,
+        "lng": -104.94544335037888
+      },
+      {
+        "lat": 39.881192653523335,
+        "lng": -104.94544335216393
+      },
+      {
+        "lat": 39.881190401027304,
+        "lng": -104.945443353949
+      },
+      {
+        "lat": 39.8811881485313,
+        "lng": -104.94544335573406
+      },
+      {
+        "lat": 39.881185896035284,
+        "lng": -104.94544335751912
+      },
+      {
+        "lat": 39.88118364353927,
+        "lng": -104.94544335930418
+      },
+      {
+        "lat": 39.88118139104325,
+        "lng": -104.94544336108925
+      },
+      {
+        "lat": 39.88117913854724,
+        "lng": -104.9454433628743
+      },
+      {
+        "lat": 39.88117688605123,
+        "lng": -104.94544336465937
+      },
+      {
+        "lat": 39.8811746335552,
+        "lng": -104.94544336644441
+      },
+      {
+        "lat": 39.88117238105917,
+        "lng": -104.94544336822949
+      },
+      {
+        "lat": 39.88117012856315,
+        "lng": -104.94544337001453
+      },
+      {
+        "lat": 39.88116787606714,
+        "lng": -104.9454433717996
+      },
+      {
+        "lat": 39.881165623571114,
+        "lng": -104.94544337358465
+      },
+      {
+        "lat": 39.88116337107509,
+        "lng": -104.94544337536972
+      },
+      {
+        "lat": 39.88116111857906,
+        "lng": -104.94544337715477
+      },
+      {
+        "lat": 39.881158866083034,
+        "lng": -104.94544337893983
+      },
+      {
+        "lat": 39.88115661358701,
+        "lng": -104.94544338072488
+      },
+      {
+        "lat": 39.88115436109098,
+        "lng": -104.94544338250995
+      },
+      {
+        "lat": 39.88115210859496,
+        "lng": -104.945443384295
+      },
+      {
+        "lat": 39.88114985609893,
+        "lng": -104.94544338608006
+      },
+      {
+        "lat": 39.88114760360289,
+        "lng": -104.94544338786511
+      },
+      {
+        "lat": 39.88114535110686,
+        "lng": -104.94544338965018
+      },
+      {
+        "lat": 39.88114309861082,
+        "lng": -104.94544339143522
+      },
+      {
+        "lat": 39.881140846114796,
+        "lng": -104.94544339322029
+      },
+      {
+        "lat": 39.881138593618765,
+        "lng": -104.94544339500534
+      },
+      {
+        "lat": 39.881137468058355,
+        "lng": -104.94544485775694
+      },
+      {
+        "lat": 39.88113634249793,
+        "lng": -104.94544632050851
+      },
+      {
+        "lat": 39.8811340900019,
+        "lng": -104.94544632229348
+      },
+      {
+        "lat": 39.881131837505855,
+        "lng": -104.94544632407843
+      },
+      {
+        "lat": 39.88112958500982,
+        "lng": -104.94544632586339
+      },
+      {
+        "lat": 39.881127332513785,
+        "lng": -104.94544632764834
+      },
+      {
+        "lat": 39.88112508001774,
+        "lng": -104.9454463294333
+      },
+      {
+        "lat": 39.881122827521715,
+        "lng": -104.94544633121826
+      },
+      {
+        "lat": 39.88112057502567,
+        "lng": -104.94544633300322
+      },
+      {
+        "lat": 39.88111832252963,
+        "lng": -104.94544633478819
+      },
+      {
+        "lat": 39.881116070033585,
+        "lng": -104.94544633657314
+      },
+      {
+        "lat": 39.88111381753754,
+        "lng": -104.9454463383581
+      },
+      {
+        "lat": 39.88111156504149,
+        "lng": -104.94544634014305
+      },
+      {
+        "lat": 39.881109312545455,
+        "lng": -104.94544634192802
+      },
+      {
+        "lat": 39.881107060049416,
+        "lng": -104.94544634371297
+      },
+      {
+        "lat": 39.88110480755335,
+        "lng": -104.94544634549794
+      },
+      {
+        "lat": 39.8811025550573,
+        "lng": -104.94544634728288
+      },
+      {
+        "lat": 39.88110030256126,
+        "lng": -104.94544634906785
+      },
+      {
+        "lat": 39.88109805006522,
+        "lng": -104.94544635085279
+      },
+      {
+        "lat": 39.88109579756916,
+        "lng": -104.94544635263776
+      },
+      {
+        "lat": 39.88109354507311,
+        "lng": -104.94544635442271
+      },
+      {
+        "lat": 39.88109129257706,
+        "lng": -104.94544635620767
+      },
+      {
+        "lat": 39.881089040081,
+        "lng": -104.94544635799264
+      },
+      {
+        "lat": 39.881086787584955,
+        "lng": -104.94544635977758
+      },
+      {
+        "lat": 39.881084535088895,
+        "lng": -104.94544636156253
+      },
+      {
+        "lat": 39.88108340815327,
+        "lng": -104.9454449005971
+      },
+      {
+        "lat": 39.88108228121764,
+        "lng": -104.94544343963167
+      },
+      {
+        "lat": 39.88108115428197,
+        "lng": -104.94544197866634
+      },
+      {
+        "lat": 39.88108115290665,
+        "lng": -104.94543905495055
+      },
+      {
+        "lat": 39.881080025970945,
+        "lng": -104.94543759398529
+      },
+      {
+        "lat": 39.88107889903521,
+        "lng": -104.9454361330201
+      },
+      {
+        "lat": 39.88107889765974,
+        "lng": -104.94543320930443
+      },
+      {
+        "lat": 39.88107889628421,
+        "lng": -104.94543028558874
+      },
+      {
+        "lat": 39.8810788949086,
+        "lng": -104.94542736187307
+      },
+      {
+        "lat": 39.88107889353291,
+        "lng": -104.9454244381574
+      },
+      {
+        "lat": 39.88107889215714,
+        "lng": -104.94542151444173
+      },
+      {
+        "lat": 39.881078890781325,
+        "lng": -104.94541859072608
+      },
+      {
+        "lat": 39.88107888940542,
+        "lng": -104.94541566701042
+      },
+      {
+        "lat": 39.88107888802943,
+        "lng": -104.94541274329475
+      },
+      {
+        "lat": 39.88107888665338,
+        "lng": -104.94540981957907
+      },
+      {
+        "lat": 39.881078885277255,
+        "lng": -104.9454068958634
+      },
+      {
+        "lat": 39.88107888390105,
+        "lng": -104.94540397214774
+      },
+      {
+        "lat": 39.88107888252478,
+        "lng": -104.94540104843207
+      },
+      {
+        "lat": 39.88107888114842,
+        "lng": -104.9453981247164
+      },
+      {
+        "lat": 39.881078879772005,
+        "lng": -104.94539520100075
+      },
+      {
+        "lat": 39.881078878395506,
+        "lng": -104.9453922772851
+      },
+      {
+        "lat": 39.88107887701894,
+        "lng": -104.94538935356941
+      },
+      {
+        "lat": 39.881078875642295,
+        "lng": -104.94538642985376
+      },
+      {
+        "lat": 39.881078874265576,
+        "lng": -104.94538350613807
+      },
+      {
+        "lat": 39.881078872888786,
+        "lng": -104.94538058242242
+      },
+      {
+        "lat": 39.88107887151193,
+        "lng": -104.94537765870676
+      },
+      {
+        "lat": 39.88107887013498,
+        "lng": -104.94537473499109
+      },
+      {
+        "lat": 39.881078868757974,
+        "lng": -104.94537181127544
+      },
+      {
+        "lat": 39.881078867380886,
+        "lng": -104.94536888755977
+      }
+    ],
+    "confidence": "high",
+    "source": "google-solar-datalayers",
+    "patioTrimApplied": false
+  },
+  "visionData": {
+    "streetView": {
+      "material": "architectural shingle",
+      "materialConfidence": "medium",
+      "condition": "good",
+      "conditionNotes": "Roof appears to be in good overall condition with uniform shingle appearance. No obvious missing or severely damaged shingles visible from street-level view. Limited roof plane visibility due to low pitch and tree obstruction.",
+      "estimatedAge": "5-10 years",
+      "stories": 2,
+      "features": {
+        "valleys": 1,
+        "ridges": 2,
+        "hips": 0,
+        "dormers": 0,
+        "gables": 2
+      },
+      "obstacles": {
+        "chimneys": 0,
+        "skylights": 0,
+        "vents": 1,
+        "satelliteDishes": 1
+      },
+      "drainage": {
+        "guttersVisible": false,
+        "downspoutsVisible": false,
+        "gutterCondition": "not visible"
+      },
+      "damage": [],
+      "notes": "Street-level visibility of the roof is significantly limited by a large mature tree in the front yard and the relatively low roof pitch. The home features a gable-style roof with brick and siding facade. A satellite dish is visible on the neighboring or attached structure to the left. Full inspection recommended to assess hidden areas — particularly rear slopes, flashing around any penetrations, and ridge cap condition. The attached garage roof section is also partially obscured. Recommend drone or physical inspection for complete assessment prior to estimating."
+    },
+    "satellite": {
+      "roofShape": "complex",
+      "materialFromAbove": "asphalt shingle",
+      "colorTone": "medium",
+      "visibleDamage": [],
+      "treeOverhang": "minimal",
+      "debrisVisible": false,
+      "poolingOrStaining": false,
+      "obstaclesFromAbove": {
+        "chimneys": 0,
+        "skylights": 0,
+        "ventsRidgeOrPlumbing": 1
+      },
+      "lineEnumeration": {
+        "ridges": [
+          {
+            "approxLengthFeet": 22,
+            "notes": "Main east-west ridge along spine of primary roof mass"
+          },
+          {
+            "approxLengthFeet": 13,
+            "notes": "Secondary shorter ridge over attached wing/bump-out section"
+          }
+        ],
+        "hips": [
+          {
+            "approxLengthFeet": 20,
+            "notes": "Northeast corner of main mass, rising diagonally to main ridge east end"
+          },
+          {
+            "approxLengthFeet": 20,
+            "notes": "Northwest corner of main mass, rising diagonally to main ridge west end"
+          },
+          {
+            "approxLengthFeet": 20,
+            "notes": "Southeast corner of main mass, rising diagonally to main ridge east end"
+          },
+          {
+            "approxLengthFeet": 20,
+            "notes": "Southwest corner of main mass, rising diagonally to main ridge west end"
+          },
+          {
+            "approxLengthFeet": 15,
+            "notes": "Outer corner of wing, northeast hip rising to secondary ridge end"
+          },
+          {
+            "approxLengthFeet": 15,
+            "notes": "Outer corner of wing, southeast hip rising to secondary ridge end"
+          }
+        ],
+        "valleys": [
+          {
+            "approxLengthFeet": 20,
+            "notes": "Inside corner at northwest junction where wing meets main roof mass"
+          },
+          {
+            "approxLengthFeet": 20,
+            "notes": "Inside corner at southwest junction where wing meets main roof mass"
+          }
+        ]
+      },
+      "interiorLinearFeet": {
+        "ridges": 35,
+        "hips": 110,
+        "valleys": 40
+      },
+      "interiorLinearFeetConfidence": "medium",
+      "notes": "Centered house is a complex cross-hip residential structure with a main hip mass and one attached wing creating two valley intersections. 9 facets consistent with main 5-facet hip roof plus 4-facet wing. Medium gray asphalt shingles in apparent good condition. One small vent cap visible near ridge. Minimal tree shadow encroachment on north edge. No visible damage, staining, or debris."
+    },
+    "material": "architectural shingle",
+    "condition": "good",
+    "stories": 2,
+    "propertyType": "residential",
+    "commercialScale": null
+  },
+  "lineItems": {
+    "perimeterFeet": 222,
+    "eaveFeet": 130,
+    "rakeFeet": 92,
+    "gutterFeet": 130,
+    "ridgeFeet": 46,
+    "hipFeet": 144,
+    "valleyFeet": 53,
+    "wallFlashingFeet": 0,
+    "stepFlashingFeet": 0,
+    "sources": {
+      "perimeter": "measured",
+      "eaveRake": "measured",
+      "gutter": "measured",
+      "ridges": "calibrated",
+      "hips": "calibrated",
+      "valleys": "calibrated",
+      "wallFlashing": "estimated",
+      "stepFlashing": "estimated"
+    }
+  },
+  "pricing": {
+    "tiers": [
+      {
+        "id": "good",
+        "name": "Good",
+        "material": "3-Tab Asphalt Shingle",
+        "warrantyYears": 25,
+        "description": "Entry-level reroof with a strong basic warranty.",
+        "highlights": [
+          "25-year manufacturer warranty",
+          "Standard underlayment + drip edge",
+          "Wind-rated to 60 mph"
+        ],
+        "subtotalSquares": 6825,
+        "subtotalFlashing": 0,
+        "subtotalFlat": 500,
+        "total": 7325
+      },
+      {
+        "id": "better",
+        "name": "Better",
+        "material": "Architectural Shingle",
+        "warrantyYears": 30,
+        "description": "Most-quoted package — dimensional shingles with longer warranty.",
+        "highlights": [
+          "30-year manufacturer warranty",
+          "Premium underlayment",
+          "Wind-rated to 110 mph"
+        ],
+        "recommended": true,
+        "subtotalSquares": 8925,
+        "subtotalFlashing": 0,
+        "subtotalFlat": 500,
+        "total": 9425
+      },
+      {
+        "id": "best",
+        "name": "Best",
+        "material": "Impact-Resistant (Class 4)",
+        "warrantyYears": 50,
+        "description": "Hail-rated shingles; many insurers offer a premium discount.",
+        "highlights": [
+          "UL 2218 Class 4 impact rating",
+          "Possible homeowner insurance discount",
+          "Wind-rated to 130 mph"
+        ],
+        "subtotalSquares": 13125,
+        "subtotalFlashing": 0,
+        "subtotalFlat": 500,
+        "total": 13625
+      }
+    ],
+    "inputs": {
+      "squares": 21,
+      "flashingFeet": 0
+    },
+    "methodology": "Estimates use your configured per-square rates, flashing rate, and flat permit/cleanup fees applied to the AI-measured roof."
+  },
+  "jobnimbus": null
+}
