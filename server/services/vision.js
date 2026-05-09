@@ -69,9 +69,9 @@ GROUND TRUTH for this house — use as scale anchors:
 - Image is ~80 ft across at this zoom level. The roof's perimeter divided by 4 is roughly the size of one side.
 
 LINE DEFINITIONS — look carefully at the image:
-- RIDGE: a HORIZONTAL line at the very top where two slopes meet at a peak. Visible as a sharp horizontal line. Long ridges run along the main spine of a gable roof. A hip roof may have a short central ridge or none at all.
-- HIP: a SLOPED line going FROM an OUTSIDE corner of the house UP to a peak. Look at each outside corner of the polygon — if the roof rises away from that corner toward an interior peak, that corner has a hip. A pure hip roof has one hip from every outside corner.
-- VALLEY: a SLOPED line going FROM an INSIDE corner of the roof footprint UP to a peak. Inside corners only exist where two roof masses meet (e.g. an L-junction or a wing meeting the main mass).
+- RIDGE: a HORIZONTAL line at the very top where two slopes meet at a peak. A ridge runs along the TOP SPINE of a roof section — it is the HIGHEST horizontal line, with slopes falling away on BOTH sides. On a hip roof, the ridge is typically SHORT (often just 20–30% of the building length) because hips consume the ends. Most residential hip roofs have only 1–2 true ridges. A pure hip (pyramid) roof has ZERO ridges. Only count a line as a ridge if it is clearly horizontal at the apex with slopes descending on both sides.
+- HIP: a SLOPED line going FROM an OUTSIDE corner of the house UP to a peak or ridge end. Hips are DIAGONAL lines — they rise from the eave at an outside corner upward toward the ridge. On a hip roof, hips typically outnumber ridges. Every outside corner that rises to a peak is a hip.
+- VALLEY: a SLOPED line going FROM an INSIDE corner (concavity) of the roof footprint UP toward a peak or ridge. Valleys form where two roof planes meet in a trough. Inside corners only exist where two roof masses meet (e.g. an L-junction, T-junction, or a wing meeting the main mass). Valley lines are typically 15–25 ft on residential roofs — similar in length to hips from the same roof.
 
 YOUR JOB: enumerate every distinct ridge, hip, and valley line you can see, estimate each one's length in feet, and sum them.
 
@@ -84,10 +84,14 @@ KEY STRUCTURAL FACTS — use these as enumeration sanity checks:
 (b) Total interior linear feet (ridges + hips + valleys SUMMED) typically equals approximately the facet count × 25–30 ft. For this house with ${facets} facets, your total should land in the range ${typeof facets === 'number' ? facets * 22 : '~22N'}–${typeof facets === 'number' ? facets * 32 : '~32N'} ft. Use this as a hard sanity check after enumeration. If your total is significantly below this range, revisit your enumeration — you're either missing lines OR underestimating lengths.
 
 (c) Typical residential roof line LENGTHS:
-- A main ridge spans 20–40 ft (often the longest single line on the roof)
-- A hip from an outside corner to a peak runs 10–25 ft
-- A valley between two roof masses runs 10–25 ft
+- A main ridge spans 20–40 ft on a gable roof but only 15–30 ft on a hip roof (hips consume the ends). Secondary ridges on wings are even shorter (10–20 ft).
+- A hip from an outside corner to a peak runs 12–25 ft
+- A valley between two roof masses runs 15–25 ft — valleys are typically SIMILAR in length to hips from the same junction, not shorter
 - Lines shorter than 8 ft are unusual — usually short hip-end-caps on small bumpouts.
+
+(d) RIDGE proportion check: On hip and cross-hip roofs, total ridge feet typically make up only 10–25% of total interior linear feet. Most of the interior footage comes from hips and valleys. If your ridge total exceeds 30% of your interior total (R + H + V), re-examine — you are likely over-counting ridges or over-estimating their lengths. A complex hip roof with ${facets} facets typically has only 1–3 true ridge lines.
+
+(e) HIP length scaling: Hips run diagonally from eave corner to peak, so they are often LONGER than they first appear in a top-down image. On a large roof (3,000+ sqft), hips commonly run 18–25 ft — use the upper end of the range when the building footprint is clearly large. Total hip feet is typically the LARGEST component on hip roofs.
 
 If you enumerate fewer lines than the minimum in (a), or your total is below the range in (b), or your individual lengths are systematically below the typical lengths in (c), go back and look harder. Trace EVERY peak and EVERY edge between facets.
 
@@ -187,12 +191,12 @@ Confidence guide:
 If you cannot identify the centered house, return { "polygon": [], "confidence": "low" }.`;
 }
 
-export async function analyzeProperty(satelliteUrl, streetViewUrl, roofContext) {
+export async function analyzeProperty(satelliteUrl, streetViewUrl, roofContext, modelOverride) {
   const satellitePrompt = buildSatellitePrompt(roofContext);
   const [streetViewAnalysis, satelliteAnalysis] = await Promise.all([
-    analyzeImage(streetViewUrl, STREETVIEW_PROMPT),
+    analyzeImage(streetViewUrl, STREETVIEW_PROMPT, 1024, modelOverride),
     // Satellite needs more tokens because it enumerates each ridge/hip/valley line.
-    analyzeImage(satelliteUrl, satellitePrompt, 3072),
+    analyzeImage(satelliteUrl, satellitePrompt, 3072, modelOverride),
   ]);
 
   // Merge obstacle counts from both views, taking the max — satellite is
@@ -217,7 +221,7 @@ export async function analyzeProperty(satelliteUrl, streetViewUrl, roofContext) 
   };
 }
 
-async function analyzeImage(imageUrl, prompt, maxTokens = 1024) {
+async function analyzeImage(imageUrl, prompt, maxTokens = 1024, modelOverride) {
   const imageResponse = await fetch(imageUrl);
   const contentType = imageResponse.headers.get('content-type') || '';
   const mediaType = contentType.includes('png') ? 'image/png' : 'image/jpeg';
@@ -225,7 +229,7 @@ async function analyzeImage(imageUrl, prompt, maxTokens = 1024) {
   const base64 = Buffer.from(imageBuffer).toString('base64');
 
   const response = await getClient().messages.create({
-    model: 'claude-sonnet-4-20250514',
+    model: modelOverride || 'claude-sonnet-4-6',
     max_tokens: maxTokens,
     messages: [{
       role: 'user',
