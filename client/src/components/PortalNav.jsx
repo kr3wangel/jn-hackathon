@@ -1,53 +1,6 @@
 import React from 'react';
 import './PortalNav.css';
 
-const NAV_ITEMS = [
-  { id: 'home', label: 'Home', icon: HomeIcon },
-  { id: 'jobs', label: 'Jobs', icon: JobsIcon },
-  { id: 'calendar', label: 'Calendar', icon: CalendarIcon },
-  { id: 'insights', label: 'Insights', icon: InsightsIcon },
-  { id: 'engage', label: 'Engage', icon: EngageIcon },
-  { id: 'payments', label: 'Payments', icon: PaymentsIcon },
-  { id: 'roofing-estimator', label: 'Roofing Estimator', icon: PdfIcon, active: true },
-];
-
-export default function PortalNav() {
-  return (
-    <nav className="portal-nav">
-      <div className="portal-nav-inner">
-        <a className="portal-brand" href="/" aria-label="JobNimbus">
-          <img src="/jn-logo.svg" alt="JobNimbus" />
-        </a>
-
-        <ul className="portal-nav-items">
-          {NAV_ITEMS.map(({ id, label, icon: Icon, active }) => (
-            <li key={id} className={`portal-nav-item ${active ? 'portal-nav-item--active' : ''}`}>
-              <button type="button" className="portal-nav-button" tabIndex={active ? 0 : -1}>
-                <Icon />
-                <span>{label}</span>
-              </button>
-            </li>
-          ))}
-        </ul>
-
-        <div className="portal-nav-actions">
-          <button type="button" className="portal-create" tabIndex={-1}>
-            <span>Create</span>
-            <PlusIcon />
-          </button>
-
-          <div className="portal-search" aria-hidden="true">
-            <SearchIcon />
-            <span className="portal-search-placeholder">Search jobs, contacts…</span>
-          </div>
-
-          <div className="portal-avatar" aria-hidden="true">AH</div>
-        </div>
-      </div>
-    </nav>
-  );
-}
-
 /* ------- Icons ------- */
 function svgProps() {
   return {
@@ -136,5 +89,52 @@ function SearchIcon() {
       <circle cx="11" cy="11" r="7" />
       <path d="M20 20l-4-4" />
     </svg>
+  );
+}
+
+const NAV_ITEMS = [
+  { id: 'home', label: 'Home', icon: HomeIcon },
+  { id: 'jobs', label: 'Jobs', icon: JobsIcon },
+  { id: 'calendar', label: 'Calendar', icon: CalendarIcon },
+  { id: 'insights', label: 'Insights', icon: InsightsIcon },
+  { id: 'engage', label: 'Engage', icon: EngageIcon },
+  { id: 'payments', label: 'Payments', icon: PaymentsIcon },
+  { id: 'roofing-estimator', label: 'Roofing Estimator', icon: PdfIcon, active: true },
+];
+
+export default function PortalNav() {
+  return (
+    <nav className="portal-nav">
+      <div className="portal-nav-inner">
+        <a className="portal-brand" href="/" aria-label="JobNimbus">
+          <img src="/jn-logo.svg" alt="JobNimbus" />
+        </a>
+
+        <ul className="portal-nav-items">
+          {NAV_ITEMS.map(({ id, label, icon: Icon, active }) => (
+            <li key={id} className={`portal-nav-item ${active ? 'portal-nav-item--active' : ''}`}>
+              <button type="button" className="portal-nav-button" tabIndex={active ? 0 : -1}>
+                <Icon />
+                <span>{label}</span>
+              </button>
+            </li>
+          ))}
+        </ul>
+
+        <div className="portal-nav-actions">
+          <button type="button" className="portal-create" tabIndex={-1}>
+            <span>Create</span>
+            <PlusIcon />
+          </button>
+
+          <div className="portal-search" aria-hidden="true">
+            <SearchIcon />
+            <span className="portal-search-placeholder">Search jobs, contacts…</span>
+          </div>
+
+          <div className="portal-avatar" aria-hidden="true">AH</div>
+        </div>
+      </div>
+    </nav>
   );
 }

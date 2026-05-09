@@ -73,7 +73,7 @@ const TIERS = [
     description: 'Most-quoted package — dimensional shingles with longer warranty.',
     highlights: [
       '30-year manufacturer warranty',
-      'Synthetic underlayment + ice & water shield',
+      'Premium underlayment',
       'Wind-rated to 110 mph',
     ],
     recommended: true,
