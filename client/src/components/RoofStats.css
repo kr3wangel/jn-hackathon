@@ -54,3 +54,11 @@
 .stat-card.primary .stat-value {
   color: var(--jn-blue);
 }
+
+.stat-card.commercial {
+  border: 2px solid var(--jn-sunset);
+}
+
+.stat-card.commercial .stat-value {
+  color: var(--jn-sunset);
+}

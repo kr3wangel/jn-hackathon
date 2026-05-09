@@ -45,8 +45,16 @@
 .estimate-id-row {
   display: flex;
   align-items: baseline;
+  justify-content: space-between;
   gap: 10px;
   margin-bottom: 4px;
+}
+
+.property-type-inline,
+.estimate-id-right {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
 }
 
 .estimate-id-label {
@@ -66,6 +74,71 @@
   background: #eef2fa;
   padding: 3px 8px;
   border-radius: 4px;
+}
+
+.empty-state {
+  margin: 48px auto 0;
+  max-width: 480px;
+  padding: 40px 32px;
+  background: #fff;
+  border: 1px solid var(--jn-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 16px;
+  animation: results-reveal 0.35s ease-out;
+}
+
+.empty-state-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: #fff0eb;
+  color: var(--jn-sunset);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.empty-state-icon svg {
+  width: 28px;
+  height: 28px;
+}
+
+.empty-state-title {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--jn-text);
+  letter-spacing: -0.01em;
+}
+
+.empty-state-message {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--jn-text-secondary);
+  line-height: 1.5;
+}
+
+.empty-state-action {
+  margin-top: 4px;
+  padding: 10px 20px;
+  background: var(--jn-deep-blue);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-md);
+  font-family: var(--font-primary);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.empty-state-action:hover {
+  background: var(--jn-blue);
 }
 
 .imagery-row {
@@ -262,6 +335,66 @@
 
 .footer-dot {
   color: var(--jn-steel);
+}
+
+/* Property type badge */
+.property-type-badge {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: #1f3e7a;
+  background: #eef2fa;
+  padding: 3px 8px;
+  border-radius: 4px;
+}
+
+.property-type-badge.commercial {
+  background: #fff0eb;
+  color: var(--jn-sunset);
+}
+
+/* Commercial property banner */
+.commercial-banner {
+  margin-top: 40px;
+  padding: 24px;
+  border-radius: var(--radius-md);
+  background: #FFF7ED;
+  border: 1px solid var(--jn-sunset);
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.commercial-banner-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--jn-sunset);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.commercial-banner-text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.commercial-banner-text strong {
+  font-size: 1rem;
+  color: var(--jn-text);
+}
+
+.commercial-banner-text span {
+  font-size: 0.875rem;
+  color: var(--jn-text-secondary);
+  line-height: 1.5;
 }
 
 @media (max-width: 720px) {

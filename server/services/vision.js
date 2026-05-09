@@ -45,6 +45,23 @@ For the damage array, list each issue found:
 
 If the image doesn't clearly show the roof or the property isn't residential, still return the JSON structure with best guesses and set confidences to "low".`;
 
+const PROPERTY_TYPE_PROMPT = `Look at this street-level image of a property. Classify it.
+
+Return ONLY valid JSON:
+{
+  "propertyType": "residential" | "commercial",
+  "commercialScale": "small" | "large" | null,
+  "confidence": "high" | "medium" | "low"
+}
+
+Guidelines:
+- "residential": house, townhouse, duplex, small multi-family (up to 4-plex)
+- "commercial": office, warehouse, retail, industrial, large apartment complex
+- "commercialScale": only set when commercial.
+  - "small": standard pitched/shingle roof a residential crew could handle (small office, daycare, strip mall unit)
+  - "large": warehouse, multi-story office, flat membrane roof, anything needing commercial roofing crews
+- Default to "residential" / null if unsure.`;
+
 // Roofing industry heuristics used in the satellite vision prompt:
 //   - Total interior linear feet ≈ facet_count × 25-30 ft (residential rule of thumb)
 //   - Per-line lengths: ridges 20-40 ft, hips 10-25 ft, valleys 10-25 ft
@@ -193,10 +210,12 @@ If you cannot identify the centered house, return { "polygon": [], "confidence":
 
 export async function analyzeProperty(satelliteUrl, streetViewUrl, roofContext, modelOverride) {
   const satellitePrompt = buildSatellitePrompt(roofContext);
-  const [streetViewAnalysis, satelliteAnalysis] = await Promise.all([
+  const [streetViewAnalysis, satelliteAnalysis, propertyTypeResult] = await Promise.all([
     analyzeImage(streetViewUrl, STREETVIEW_PROMPT, 1024, modelOverride),
     // Satellite needs more tokens because it enumerates each ridge/hip/valley line.
     analyzeImage(satelliteUrl, satellitePrompt, 3072, modelOverride),
+    analyzeImage(streetViewUrl, PROPERTY_TYPE_PROMPT, 256, 'claude-haiku-4-5-20251001')
+      .catch(() => ({ propertyType: 'residential', commercialScale: null })),
   ]);
 
   // Merge obstacle counts from both views, taking the max — satellite is
@@ -218,6 +237,8 @@ export async function analyzeProperty(satelliteUrl, streetViewUrl, roofContext, 
     material: streetViewAnalysis.material || 'architectural shingle',
     condition: streetViewAnalysis.condition || 'fair',
     stories: streetViewAnalysis.stories || 1,
+    propertyType: propertyTypeResult.propertyType || 'residential',
+    commercialScale: propertyTypeResult.commercialScale || null,
   };
 }
 

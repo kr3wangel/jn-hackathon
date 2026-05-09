@@ -25,7 +25,9 @@ export default function App() {
   const [jnResult, setJnResult] = useState(null);
   const [address, setAddress] = useState('');
   const [estimateId, setEstimateId] = useState(null);
+  const [shortCircuit, setShortCircuit] = useState(null);
   const [error, setError] = useState(null);
+  const [errorCode, setErrorCode] = useState(null);
   const abortRef = useRef(null);
   const stateRef = useRef('idle');
   const autoAdvanceRef = useRef([]);
@@ -48,7 +50,9 @@ export default function App() {
     setVisionData(null);
     setJnResult(null);
     setEstimateId(null);
+    setShortCircuit(null);
     setError(null);
+    setErrorCode(null);
 
     const body = JSON.stringify({
       address: place.formatted_address,
@@ -135,7 +139,9 @@ export default function App() {
     setVisionData(null);
     setJnResult(null);
     setEstimateId(null);
+    setShortCircuit(null);
     setError(null);
+    setErrorCode(null);
   }
 
   async function imgToBase64(url) {
@@ -291,8 +297,10 @@ export default function App() {
       if (data.visionData) setVisionData(data.visionData);
       if (data.jobnimbus) setJnResult(data.jobnimbus);
       if (data.estimateId) setEstimateId(data.estimateId);
+      if (data.shortCircuit) setShortCircuit(data.shortCircuit);
     } else if (event === 'error') {
       setError(data.message);
+      setErrorCode(data.code || null);
       setPipelineState('error');
       stateRef.current = 'error';
     }
@@ -315,7 +323,29 @@ export default function App() {
           />
         </div>
 
-        {(pipelineState === 'running' || pipelineState === 'error') && (
+        {pipelineState === 'error' && errorCode === 'PROPERTY_NOT_FOUND' && (
+          <div className="empty-state">
+            <div className="empty-state-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 1 1 18 0z" />
+                <line x1="9" y1="9" x2="15" y2="15" />
+                <line x1="15" y1="9" x2="9" y2="15" />
+              </svg>
+            </div>
+            <h2 className="empty-state-title">Property data unavailable</h2>
+            <p className="empty-state-message">
+              Google's roof imagery dataset doesn't cover this address — usually
+              commercial buildings, very new construction, or rural properties.
+              Try a different residential property.
+            </p>
+            <button type="button" className="empty-state-action" onClick={handleReset}>
+              Try another address
+            </button>
+          </div>
+        )}
+
+        {((pipelineState === 'running') ||
+          (pipelineState === 'error' && errorCode !== 'PROPERTY_NOT_FOUND')) && (
           <PipelineLoader
             steps={STEPS}
             stepState={steps}
@@ -325,14 +355,25 @@ export default function App() {
           />
         )}
 
-        {(pipelineState === 'done' || pipelineState === 'error') && (
+        {(pipelineState === 'done' ||
+          (pipelineState === 'error' && errorCode !== 'PROPERTY_NOT_FOUND')) && (
           <div className="results">
-            {estimateId && (
-              <div className="estimate-id-row">
-                <span className="estimate-id-label">Estimate</span>
-                <span className="estimate-id-value">EST-{estimateId}</span>
-              </div>
-            )}
+            <div className="estimate-id-row">
+              {visionData?.propertyType && (
+                <span className="property-type-inline">
+                  <span className="estimate-id-label">Property Type</span>
+                  <span className={`property-type-badge${visionData.propertyType === 'commercial' ? ' commercial' : ''}`}>
+                    {visionData.propertyType === 'commercial' ? 'Commercial' : 'Residential'}
+                  </span>
+                </span>
+              )}
+              {estimateId && (
+                <span className="estimate-id-right">
+                  <span className="estimate-id-label">Estimate</span>
+                  <span className="estimate-id-value">EST-{estimateId}</span>
+                </span>
+              )}
+            </div>
             {imagery && (
               <div className="imagery-row">
                 <div className="streetview-card">
@@ -357,9 +398,19 @@ export default function App() {
 
             {roofData && <RoofStats data={roofData} visionData={visionData} />}
 
-            {lineItems && <LineItems data={lineItems} />}
+            {shortCircuit === 'commercial-large' && (
+              <div className="commercial-banner">
+                <div className="commercial-banner-icon">!</div>
+                <div className="commercial-banner-text">
+                  <strong>Custom Quote Required</strong>
+                  <span>This appears to be a large commercial property. Automated estimates are designed for residential and small commercial roofs. Contact a commercial roofing specialist for an accurate quote.</span>
+                </div>
+              </div>
+            )}
 
-            {pricing && <PricingEstimate data={pricing} />}
+            {!shortCircuit && lineItems && <LineItems data={lineItems} />}
+
+            {!shortCircuit && pricing && <PricingEstimate data={pricing} />}
 
             {visionData && <VisionAnalysis data={visionData} />}
 

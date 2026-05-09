@@ -98,6 +98,32 @@ pipelineRouter.post('/pipeline', async (req, res) => {
       send('step', { step: 'vision', status: 'done', data: { skipped: true, reason: 'ANTHROPIC_API_KEY not set' } });
     }
 
+    // Short-circuit: large commercial buildings need a custom quote
+    const isLargeCommercial = visionData?.propertyType === 'commercial'
+      && visionData?.commercialScale === 'large';
+
+    if (isLargeCommercial) {
+      let jnResult = null;
+      if (process.env.JN_API_KEY) {
+        try {
+          jnResult = await pushToJobNimbus({ address, lat, lng, zip, roofData, visionData, lineItems: null });
+        } catch (jnErr) {
+          jnResult = { skipped: true, reason: jnErr.message };
+        }
+      }
+
+      const estimateId = randomUUID().replace(/-/g, '').slice(0, 8).toUpperCase();
+      send('done', {
+        message: 'Pipeline complete',
+        estimateId, imagery, roofData, roofOutline, visionData,
+        lineItems: null, pricing: null,
+        jobnimbus: jnResult,
+        shortCircuit: 'commercial-large',
+      });
+      res.end();
+      return;
+    }
+
     // Measurements + pricing are synchronous — the client auto-advances
     // through these loader steps on a timer, so no SSE events needed.
     let lineItems = null;
@@ -155,7 +181,7 @@ pipelineRouter.post('/pipeline', async (req, res) => {
     });
   } catch (err) {
     console.error('Pipeline error:', err);
-    send('error', { message: err.message });
+    send('error', { message: err.message, code: err.code || null });
   } finally {
     res.end();
   }

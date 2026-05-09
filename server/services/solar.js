@@ -15,6 +15,14 @@ export async function fetchBuildingInsights(lat, lng) {
   const res = await fetch(url);
   if (!res.ok) {
     const err = await res.text();
+    // Google's Solar dataset doesn't cover every address (commercial sites,
+    // newer developments, low-quality imagery, etc.). Surface that specifically
+    // so the UI can render a friendly empty state instead of a raw 404.
+    if (res.status === 404) {
+      const e = new Error('No roof imagery available for this property');
+      e.code = 'PROPERTY_NOT_FOUND';
+      throw e;
+    }
     throw new Error(`Solar API error (${res.status}): ${err}`);
   }
 
