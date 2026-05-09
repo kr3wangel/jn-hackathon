@@ -9,6 +9,13 @@
   color: var(--jn-text);
 }
 
+/* Mirror the AI Analysis grid layout for visual consistency. */
+.line-items-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
 .line-items-card {
   background: #fff;
   border-radius: var(--radius-md);
@@ -23,87 +30,19 @@
   letter-spacing: 0.05em;
   color: var(--jn-text-muted);
   text-transform: uppercase;
+  padding: 0;
   margin-bottom: 4px;
 }
 
-/* Use the kv-table layout from VisionAnalysis for visual consistency, but
-   override a few specifics for the 3-column layout (label / value / source). */
-.kv-table.line-items-table {
-  margin-top: 12px;
-}
-
-.kv-table.line-items-table th {
-  width: auto;
-  text-transform: uppercase;
-}
-
-.kv-table.line-items-table td {
-  text-transform: none;
-}
-
-.kv-table.line-items-table tbody tr.is-missing {
-  color: var(--jn-text-muted);
-}
-
-.line-items-value {
-  text-align: right;
-  font-variant-numeric: tabular-nums;
-  white-space: nowrap;
-  width: 1%;
-  padding-right: 16px !important;
-}
-
-.value-num {
-  font-weight: 700;
-  color: var(--jn-text);
-  font-size: 1rem;
-}
-
-.value-empty {
-  color: var(--jn-text-muted);
-}
-
-.value-unit {
+.line-items-card .value-unit {
   font-family: var(--font-mono);
   font-size: 0.7rem;
   color: var(--jn-text-muted);
   letter-spacing: 0.04em;
-  margin-left: 2px;
+  margin-left: 4px;
   text-transform: uppercase;
 }
 
-.line-items-source {
-  text-align: right;
-  width: 1%;
-  white-space: nowrap;
-}
-
-.source-tag {
-  display: inline-block;
-  font-family: var(--font-mono);
-  font-size: 0.62rem;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  padding: 3px 8px;
-  border-radius: var(--radius-sm);
-}
-
-.source-tag.measured {
-  background: #ecfdf5;
-  color: #047857;
-}
-
-.source-tag.estimated {
-  background: #fff7ed;
-  color: #c2410c;
-}
-
-.source-tag.calibrated {
-  background: #eff6ff;
-  color: #1d4ed8;
-}
-
-.source-tag.unmeasured {
-  background: var(--jn-cloud);
+.line-items-card .value-empty {
   color: var(--jn-text-muted);
 }

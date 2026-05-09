@@ -1,6 +1,6 @@
 .roof-stats {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 16px;
   margin-top: 40px;
 }
@@ -28,15 +28,27 @@
 }
 
 .stat-value {
+  display: block;
   font-size: 1.75rem;
   font-weight: 700;
   color: var(--jn-night);
+  line-height: 1.1;
 }
 
 .stat-value small {
   font-size: 0.875rem;
   font-weight: 500;
   color: var(--jn-text-secondary);
+}
+
+.stat-sub {
+  display: block;
+  margin-top: 4px;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.04em;
+  color: var(--jn-text-muted);
+  text-transform: uppercase;
 }
 
 .stat-card.primary .stat-value {

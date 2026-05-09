@@ -26,15 +26,27 @@ const FT_PER_FACET = 27;
 const CALIBRATION_THRESHOLD = 0.9;
 
 export function computeLineItems({ geoPolygon, segments, visionData }) {
-  if (!geoPolygon || geoPolygon.length < 3) return null;
+  // Geometric items (perimeter / eaves / rakes / gutter) require the
+  // polygon. The vision-derived items (ridges / hips / valleys / flashing)
+  // do not. When the polygon is missing — e.g. Solar dataLayers returned
+  // no mask for this address — we still return a populated object with the
+  // geometric fields set to null so the UI can render the partial report
+  // instead of disappearing entirely.
+  const havePolygon = Array.isArray(geoPolygon) && geoPolygon.length >= 3;
 
-  const edges = classifyEdges(geoPolygon, segments || []);
-
-  const eaveFeet = sumByType(edges, 'eave');
-  const rakeFeet = sumByType(edges, 'rake');
-  const unknownFeet = sumByType(edges, 'unknown');
-  const perimeterFeet = eaveFeet + rakeFeet + unknownFeet;
-  const gutterFeet = eaveFeet;
+  let edges = [];
+  let eaveFeet = null;
+  let rakeFeet = null;
+  let perimeterFeet = null;
+  let gutterFeet = null;
+  if (havePolygon) {
+    edges = classifyEdges(geoPolygon, segments || []);
+    eaveFeet = sumByType(edges, 'eave');
+    rakeFeet = sumByType(edges, 'rake');
+    const unknownFeet = sumByType(edges, 'unknown');
+    perimeterFeet = eaveFeet + rakeFeet + unknownFeet;
+    gutterFeet = eaveFeet;
+  }
 
   const interior = visionData?.satellite?.interiorLinearFeet || {};
   const facetCount = segments?.length || 0;
@@ -72,9 +84,9 @@ export function computeLineItems({ geoPolygon, segments, visionData }) {
     stepFlashingFeet: round(stepFlashingFeet),
     edges, // detailed per-edge breakdown for debugging / segment overlay
     sources: {
-      perimeter: 'measured', // from roof outline polygon
-      eaveRake: segments?.length ? 'measured' : 'unmeasured',
-      gutter: 'measured', // = eave
+      perimeter: havePolygon ? 'measured' : 'unmeasured',
+      eaveRake: havePolygon && segments?.length ? 'measured' : 'unmeasured',
+      gutter: havePolygon ? 'measured' : 'unmeasured',
       ridges: ridgesSource,
       hips: hipsSource,
       valleys: valleysSource,
@@ -212,7 +224,7 @@ function numberOrNull(v) {
 }
 
 function round(v) {
-  return Math.round(v);
+  return v == null ? null : Math.round(v);
 }
 
 function toRad(d) {

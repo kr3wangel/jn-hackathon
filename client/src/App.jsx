@@ -189,7 +189,7 @@ export default function App() {
               </div>
             )}
 
-            {roofData && <RoofStats data={roofData} />}
+            {roofData && <RoofStats data={roofData} visionData={visionData} />}
 
             {lineItems && <LineItems data={lineItems} />}
 

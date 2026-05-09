@@ -61,23 +61,25 @@ function parseRoofData(data) {
     : 0;
 
   // Solar API areaMeters2 is already the 3D roof plane area (accounts for pitch).
-  // Only apply waste factor for material ordering — do NOT re-apply pitch multiplier.
-  const wasteFactor = 1.10;
-  const materialSqft = mainRoofAreaSqft * wasteFactor;
-  const roofingSquares = materialSqft / 100;
+  // Roofing squares = ceil(sqft / 100). Squares are sold as whole units
+  // (you can't buy 0.7 of a square), so we round UP to the nearest whole.
+  // We deliberately do NOT bake a waste factor into the displayed squares —
+  // every contractor uses their own waste percentage (typically 10–15%
+  // depending on roof complexity), so applying ours would conflict with
+  // their bid math. The whole-square minimum is what they need to cover
+  // the roof; they apply their own waste on top.
+  const roofingSquares = Math.ceil(mainRoofAreaSqft / 100);
 
   return {
     totalAreaSqft: Math.round(mainRoofAreaSqft),
     fullStructureSqft: Math.round(totalAreaSqft), // includes patios — kept for transparency
     patioSqft: patioInfo.totalPatioSqft,
     patioInfo, // segments, confidence, reason
-    materialSqft: Math.round(materialSqft),
-    roofingSquares: Math.round(roofingSquares * 10) / 10,
+    roofingSquares,
     facetCount: mainRoofSegments.length,
     fullStructureFacetCount: segments.length,
     avgPitchDegrees: Math.round(avgPitchDeg * 10) / 10,
     avgPitchRatio: degreesToRiseRun(avgPitchDeg),
-    wasteFactor,
     segments: mainRoofSegments, // downstream measurement uses main-roof segments only
     allSegments: segments,       // includes patios — kept for diagnostic display
     imageryDate: data.imageryDate,
