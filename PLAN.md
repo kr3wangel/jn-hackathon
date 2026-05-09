@@ -27,8 +27,8 @@ Build an AI pipeline that takes a property address and produces a fully-prepped 
 | 5.9 — Loader refactor + vision-prompt tuning + benchmark harness | ✅ Done (this session) |
 | 6 — JobNimbus integration | ✅ Wired (parallelized with measurements/pricing); needs sandbox verification |
 | 7 — Demo prep + reliability test | ⏳ Pending |
-| 8 — Submission (public repo + examples + sqft form) | 🔥 **DEADLINE TODAY 1:30 PM** |
-| 9 — Vercel deploy + repo organization | ⏳ Next (agent kicking off) |
+| 8 — Submission (public repo + examples + sqft form) | ✅ Repo public, examples captured, README in place. Form submission in flight. |
+| 9 — Vercel deploy + repo organization | ⏳ Deferred (not a hard requirement) |
 
 **Submission deadline:** Saturday May 9, 2026 at **1:30 PM** — submit total sqft for the 5 benchmark *test* addresses via the [submission form](https://docs.google.com/forms/d/e/1FAIpQLSfTL58Z0rVBgfx9l81lV7GpryhF7kDEuFKCgNG5i-m1RWDyUg/viewform). Also need a public GitHub repo with output artifacts per test property.
 
@@ -137,37 +137,36 @@ Address input (server-side Google Places Autocomplete)
 
 ## Pending Work
 
-### 🔥 Submission — Saturday May 9, 1:30 PM
+### ✅ Submission — Saturday May 9, 1:30 PM
 
-Deadline-critical, in priority order:
+Done:
+- Pipeline run on the 5 test properties (sqft below)
+- Per-property artifacts captured under [`examples/<slug>/`](./examples) — `satellite.jpg`, `streetview.jpg`, `output.json`, `report.pdf`
+- `examples/summary.json` with sqft + facets + pipeline time per address
+- Public GitHub repo with top-level `README.md`
+- `.env` gitignored, no secrets in history
 
-1. **Run the pipeline on the 5 test properties** (UI auto-saves nothing — capture from console / network or use a script):
-   1. 3561 E 102nd Ct, Thornton, CO 80229
-   2. 1612 S Canton Ave, Springfield, MO 65802
-   3. 6310 Laguna Bay Court, Houston, TX 77041
-   4. 3820 E Rosebrier St, Springfield, MO 65809
-   5. 1261 20th Street, Newport News, VA 23607
-2. **Capture output artifacts** under `examples/<slug>/`:
-   - `satellite.jpg`, `streetview.jpg`, `output.json` (full pipeline `done` payload)
-   - `report.pdf` (download via the UI button — adds the per-property deliverable that the rubric asks about)
-   - Top-level `examples/README.md` with a table: address, sqft, pipeline time
-3. **Public GitHub repo**:
-   - Verify `.env` is gitignored, no secrets in history
-   - Top-level `README.md`: project overview, architecture diagram, setup, how to run, screenshot
-   - The repo-organization agent kicking off after this should handle structural cleanup before the README pass
-4. **Fill out the Google Form** (~5 min): team name + members, ≤200-word approach summary, phone number, sqft for each test property, optional demo video / hosted link.
-   - Form: https://docs.google.com/forms/d/e/1FAIpQLSfTL58Z0rVBgfx9l81lV7GpryhF7kDEuFKCgNG5i-m1RWDyUg/viewform
+In flight:
+- Google Form submission (handled in another session)
 
-### Vercel deploy + repo organization (next, agent-owned)
+| Address | Sqft submitted |
+|---|---|
+| 3561 E 102nd Ct, Thornton, CO 80229 | 2,081 |
+| 1612 S Canton Ave, Springfield, MO 65802 | 2,757 |
+| 6310 Laguna Bay Court, Houston, TX 77041 | 4,186 |
+| 3820 E Rosebrier St, Springfield, MO 65809 | 5,566 |
+| 1261 20th Street, Newport News, VA 23607 | 6,118 |
 
-The agent picking this up should:
-- Restructure the repo for clarity (suggested: monorepo with `apps/web` + `apps/api`, or flatter `client/` + `api/` for Vercel serverless). Confirm before destructive moves.
-- Migrate the Express API to Vercel — likely either Vercel serverless functions (each route → `api/*.js`) or a single Express handler under `api/index.js`. SSE works on Vercel but has a 60s execution limit on Pro, 10s on Hobby — current pipeline lands in ~10–15s so this is tight on Hobby.
-- The PDF route returns a buffer; check Vercel's response-size limits (~4.5MB). Current PDFs are <300KB so fine.
+### Vercel deploy + repo organization (deferred — not a requirement)
+
+When picked up later, the agent should:
+- Restructure the repo for clarity (suggested: flatter `client/` + `api/` for Vercel serverless). Confirm before destructive moves.
+- Migrate the Express API to Vercel — likely serverless functions or a single Express handler under `api/index.js`. SSE works on Vercel but has a 60s execution limit on Pro, 10s on Hobby — current pipeline lands in ~10–15s so this is tight on Hobby.
+- PDF route returns a buffer; Vercel's 4.5MB response limit is fine (<300KB current).
 - Static assets (JN logo, favicon) just deploy with the Vite build.
-- `.env` → Vercel env vars: `ANTHROPIC_API_KEY`, `GOOGLE_MAPS_API_KEY`, `JN_API_KEY`. Verify the Google Maps key's referrer restrictions allow the deployed domain (currently locked to localhost during dev).
+- `.env` → Vercel env vars: `ANTHROPIC_API_KEY`, `GOOGLE_MAPS_API_KEY`, `JN_API_KEY`. Verify the Google Maps key's referrer restrictions allow the deployed domain.
 - Keep the `scripts/` benchmark harness as a local-only tool — don't deploy it.
-- Don't break the local dev workflow (`launch.json` server + client); maintainers still need fast iteration.
+- Don't break the local dev workflow (`launch.json` server + client).
 
 ### After submission: finalist round (2:00 PM if selected)
 
@@ -224,10 +223,10 @@ We meet the practical-accuracy bar on all 5 properties.
 jn-hackathon/
 ├── CLAUDE.md
 ├── PLAN.md
-├── README.md                       # TODO — for submission
+├── README.md
 ├── package.json
-├── examples/                       # TODO — for submission
-│   └── README.md                   # Table of addresses + outputs
+├── examples/                       # Per-property artifact captures (5 benchmark addresses)
+│   └── summary.json                # Aggregated capture results
 ├── server/
 │   ├── index.js                    # Express entry
 │   ├── routes/
