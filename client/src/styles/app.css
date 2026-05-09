@@ -40,6 +40,15 @@
   margin-bottom: 40px;
 }
 
+.address-input-area {
+  transition: max-width 0.3s ease;
+}
+
+.address-input-area.compact {
+  max-width: 480px;
+  margin: 0 auto 24px;
+}
+
 .eyebrow {
   font-family: var(--font-mono);
   font-size: 0.8rem;
@@ -86,7 +95,7 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 24px;
-  margin-top: 32px;
+  margin-top: 40px;
 }
 
 .imagery-grid.single {
@@ -120,7 +129,7 @@
 
 .jn-success,
 .jn-skipped {
-  margin-top: 32px;
+  margin-top: 40px;
   padding: 20px 24px;
   border-radius: var(--radius-md);
   display: flex;

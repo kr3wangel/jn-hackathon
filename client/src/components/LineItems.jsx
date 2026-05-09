@@ -17,37 +17,38 @@ export default function LineItems({ data }) {
   if (!data) return null;
 
   return (
-    <div className="line-items">
-      <div className="line-items-header">
-        <h3 className="section-title">Line Items</h3>
-        <p className="line-items-sub">Linear feet for the contractor's quote</p>
+    <div className="line-items-section">
+      <h3 className="section-title">Line Items</h3>
+      <div className="line-items-card">
+        <span className="card-label">LINEAR FEET FOR THE CONTRACTOR'S QUOTE</span>
+        <table className="kv-table line-items-table">
+          <tbody>
+            {ROWS.map((row) => {
+              const value = data[row.key];
+              const source = row.sourceKey ? data.sources?.[row.sourceKey] : 'measured';
+              const resolvedSource = value == null ? 'unmeasured' : source;
+              return (
+                <tr key={row.key} className={value == null ? 'is-missing' : ''}>
+                  <th scope="row">{row.label}</th>
+                  <td className="line-items-value">
+                    {value == null ? (
+                      <span className="value-empty">—</span>
+                    ) : (
+                      <>
+                        <span className="value-num">{value.toLocaleString()}</span>
+                        <span className="value-unit">ft</span>
+                      </>
+                    )}
+                  </td>
+                  <td className="line-items-source">
+                    <SourceTag source={resolvedSource} />
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
       </div>
-      <table className="line-items-table">
-        <thead>
-          <tr>
-            <th className="col-label">Item</th>
-            <th className="col-value">Linear feet</th>
-            <th className="col-source">Source</th>
-          </tr>
-        </thead>
-        <tbody>
-          {ROWS.map((row) => {
-            const value = data[row.key];
-            const source = row.sourceKey ? data.sources?.[row.sourceKey] : 'measured';
-            return (
-              <tr key={row.key} className={value == null ? 'is-missing' : ''}>
-                <th className="col-label" scope="row">{row.label}</th>
-                <td className="col-value">
-                  {value == null ? '—' : <><span className="value-num">{value.toLocaleString()}</span> <span className="value-unit">ft</span></>}
-                </td>
-                <td className="col-source">
-                  <SourceTag source={value == null ? 'unmeasured' : source} />
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
     </div>
   );
 }

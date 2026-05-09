@@ -149,13 +149,17 @@ export default function App() {
       </header>
 
       <main className="container main">
-        <div className="hero">
-          <span className="eyebrow">AI-POWERED ROOF INSPECTION</span>
-          <h2>Instant roof inspections,<br />delivered to JobNimbus</h2>
-          <p className="subtitle">Enter a property address to capture roof measurements, AI analysis, and a JobNimbus job in seconds.</p>
-        </div>
+        {pipelineState === 'idle' && (
+          <div className="hero">
+            <span className="eyebrow">AI-POWERED ROOF INSPECTION</span>
+            <h2>Instant roof inspections,<br />delivered to JobNimbus</h2>
+            <p className="subtitle">Enter a property address to capture roof measurements, AI analysis, and a JobNimbus job in seconds.</p>
+          </div>
+        )}
 
-        <AddressInput onSubmit={handleSubmit} disabled={pipelineState === 'running'} />
+        <div className={`address-input-area ${pipelineState !== 'idle' ? 'compact' : ''}`}>
+          <AddressInput onSubmit={handleSubmit} disabled={pipelineState === 'running'} />
+        </div>
 
         {pipelineState !== 'idle' && (
           <StatusTracker steps={STEPS} stepState={steps} pipelineState={pipelineState} error={error} />

@@ -1,86 +1,66 @@
-.line-items {
-  background: #fff;
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-md);
-  padding: 24px;
-  margin-top: 32px;
+.line-items-section {
+  margin-top: 40px;
 }
 
-.line-items-header {
-  margin-bottom: 16px;
-}
-
-.line-items-header .section-title {
-  margin: 0;
+.line-items-section .section-title {
+  margin: 0 0 16px;
   font-size: 1.125rem;
   font-weight: 700;
   color: var(--jn-text);
 }
 
-.line-items-sub {
-  margin: 4px 0 0;
-  font-family: var(--font-mono);
-  font-size: 0.7rem;
-  color: var(--jn-text-muted);
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
+.line-items-card {
+  background: #fff;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  padding: 20px;
 }
 
-.line-items-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.9rem;
-}
-
-.line-items-table thead th {
+.line-items-card .card-label {
+  display: block;
   font-family: var(--font-mono);
   font-size: 0.65rem;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.05em;
   color: var(--jn-text-muted);
   text-transform: uppercase;
-  font-weight: 500;
-  padding: 8px 0;
-  border-bottom: 1px solid var(--jn-border);
-  text-align: left;
+  margin-bottom: 4px;
 }
 
-.line-items-table thead .col-value {
-  text-align: right;
+/* Use the kv-table layout from VisionAnalysis for visual consistency, but
+   override a few specifics for the 3-column layout (label / value / source). */
+.kv-table.line-items-table {
+  margin-top: 12px;
 }
 
-.line-items-table thead .col-source {
-  text-align: right;
+.kv-table.line-items-table th {
+  width: auto;
+  text-transform: uppercase;
 }
 
-.line-items-table tbody tr {
-  border-bottom: 1px solid var(--jn-border);
+.kv-table.line-items-table td {
+  text-transform: none;
 }
 
-.line-items-table tbody tr:last-child {
-  border-bottom: none;
-}
-
-.line-items-table tbody tr.is-missing {
+.kv-table.line-items-table tbody tr.is-missing {
   color: var(--jn-text-muted);
 }
 
-.line-items-table tbody th.col-label {
-  font-weight: 600;
-  color: var(--jn-text);
-  text-align: left;
-  padding: 10px 0;
-}
-
-.line-items-table tbody td.col-value {
+.line-items-value {
   text-align: right;
-  padding: 10px 0;
   font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  width: 1%;
+  padding-right: 16px !important;
 }
 
 .value-num {
   font-weight: 700;
   color: var(--jn-text);
   font-size: 1rem;
+}
+
+.value-empty {
+  color: var(--jn-text-muted);
 }
 
 .value-unit {
@@ -92,9 +72,10 @@
   text-transform: uppercase;
 }
 
-.line-items-table tbody td.col-source {
+.line-items-source {
   text-align: right;
-  padding: 10px 0;
+  width: 1%;
+  white-space: nowrap;
 }
 
 .source-tag {
