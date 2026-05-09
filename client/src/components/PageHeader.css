@@ -1,0 +1,65 @@
+.page-header {
+  background: #fff;
+  border-bottom: 1px solid var(--jn-border);
+}
+
+.page-header-inner {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 14px 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.page-header-back {
+  width: 36px;
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  border-radius: 50%;
+  color: var(--jn-text-secondary);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.page-header-back:hover {
+  background: var(--jn-bg);
+  color: var(--jn-text);
+}
+
+.page-header-back svg {
+  width: 20px;
+  height: 20px;
+}
+
+.page-header-title {
+  font-size: 1.6rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--jn-night);
+  margin: 0;
+}
+
+.page-header-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  background: rgba(57, 104, 198, 0.12);
+  color: var(--jn-blue);
+  border-radius: 999px;
+  font-family: var(--font-primary);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.page-header-actions {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+}

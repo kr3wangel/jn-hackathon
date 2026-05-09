@@ -1,0 +1,255 @@
+.portal-nav {
+  background: #fff;
+  border-bottom: 1px solid var(--jn-border);
+  position: sticky;
+  top: 0;
+  z-index: 30;
+}
+
+.portal-nav-inner {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  height: 76px;
+}
+
+.portal-brand {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  text-decoration: none;
+}
+
+.portal-brand img {
+  height: 22px;
+  width: auto;
+  display: block;
+}
+
+/* ---------- Nav items (icon stacked over label) ---------- */
+.portal-nav-items {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.portal-nav-item {
+  position: relative;
+}
+
+.portal-nav-button {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 12px;
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-sm);
+  color: var(--jn-text-secondary);
+  font-family: var(--font-primary);
+  font-size: 0.78rem;
+  font-weight: 500;
+  letter-spacing: -0.005em;
+  cursor: default;
+  transition: background 0.15s, color 0.15s;
+}
+
+.portal-nav-button svg {
+  width: 22px;
+  height: 22px;
+  color: var(--jn-text-muted);
+}
+
+.portal-nav-item--active .portal-nav-button {
+  color: var(--jn-blue);
+}
+
+.portal-nav-item--active .portal-nav-button svg {
+  color: var(--jn-blue);
+}
+
+.portal-nav-item--active::after {
+  content: '';
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: -1px;
+  height: 2.5px;
+  background: var(--jn-blue);
+  border-radius: 2px;
+}
+
+/* ---------- Right-side action cluster ---------- */
+.portal-nav-actions {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.portal-create {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px 8px 16px;
+  background: var(--jn-blue);
+  color: #fff;
+  border: none;
+  border-radius: 999px;
+  font-family: var(--font-primary);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: default;
+}
+
+.portal-create svg {
+  width: 16px;
+  height: 16px;
+}
+
+.portal-search {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  background: var(--jn-bg);
+  border: 1px solid var(--jn-border);
+  border-radius: 999px;
+  color: var(--jn-text-muted);
+  min-width: 200px;
+  font-size: 0.85rem;
+}
+
+.portal-search svg {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+.portal-search-placeholder {
+  font-family: var(--font-primary);
+}
+
+.portal-icon-btn {
+  width: 36px;
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  border-radius: 50%;
+  color: var(--jn-text-secondary);
+  cursor: default;
+  transition: background 0.15s;
+}
+
+.portal-icon-btn svg {
+  width: 20px;
+  height: 20px;
+}
+
+.portal-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--jn-green);
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-primary);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  flex-shrink: 0;
+  box-shadow: inset 0 0 0 2px #fff;
+}
+
+@media (max-width: 1280px) {
+  .portal-search {
+    min-width: 0;
+    width: 36px;
+    padding: 8px;
+  }
+  .portal-search-placeholder {
+    display: none;
+  }
+}
+
+@media (max-width: 900px) {
+  .portal-nav-button span {
+    display: none;
+  }
+  .portal-nav-button {
+    padding: 8px;
+  }
+  .portal-create span {
+    display: none;
+  }
+  .portal-create {
+    padding: 8px;
+    width: 36px;
+    height: 36px;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 720px) {
+  .portal-nav-inner {
+    height: 60px;
+    gap: 8px;
+    padding: 0 14px;
+  }
+  .portal-brand img {
+    height: 20px;
+  }
+  /* On mobile, hide the full nav strip and the search — keep only the
+     active item visible so the user knows where they are. */
+  .portal-nav-items {
+    gap: 0;
+  }
+  .portal-nav-item {
+    display: none;
+  }
+  .portal-nav-item--active {
+    display: block;
+  }
+  .portal-nav-item--active .portal-nav-button span {
+    display: inline;
+    font-size: 0.82rem;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .portal-nav-item--active .portal-nav-button {
+    flex-direction: row;
+    gap: 6px;
+    padding: 6px 8px;
+  }
+  .portal-nav-item--active .portal-nav-button svg {
+    width: 18px;
+    height: 18px;
+  }
+  .portal-nav-item--active::after {
+    display: none;
+  }
+  .portal-search {
+    display: none;
+  }
+  .portal-create {
+    width: 36px;
+    height: 36px;
+    padding: 8px;
+  }
+  .portal-avatar {
+    display: none;
+  }
+}

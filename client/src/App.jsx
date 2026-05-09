@@ -1,6 +1,8 @@
 import React, { useRef, useState } from 'react';
 import AddressInput from './components/AddressInput';
 import Timer from './components/Timer';
+import PortalNav from './components/PortalNav';
+import PageHeader from './components/PageHeader';
 import PipelineLoader from './components/PipelineLoader';
 import RoofStats from './components/RoofStats';
 import VisionAnalysis from './components/VisionAnalysis';
@@ -151,34 +153,13 @@ export default function App() {
 
   return (
     <div className="app">
-      <header className="header">
-        <div className="container">
-          <div className="header-content">
-            <a className="brand" href="/">
-              <img className="brand-logo" src="/jn-logo.svg" alt="JobNimbus" />
-              <span className="brand-divider" aria-hidden="true" />
-              <span className="brand-product">AI Roof Estimator</span>
-            </a>
-            <Timer state={pipelineState} />
-          </div>
-        </div>
-      </header>
+      <PortalNav />
+      <PageHeader onBack={pipelineState !== 'idle' ? handleReset : undefined}>
+        <Timer state={pipelineState} />
+      </PageHeader>
 
-      <main className="container main">
-        {pipelineState === 'idle' && (
-          <div className="hero">
-            <span className="eyebrow">For Roofing Contractors</span>
-            <h2>
-              From address to<br />
-              ready-to-quote JobNimbus lead,<br />
-              <span className="hero-accent">in seconds.</span>
-            </h2>
-            <p className="subtitle">
-              Satellite roof measurements, AI inspection notes, and a fully-prepped lead — ready for your pricing.
-            </p>
-          </div>
-        )}
-
+      <main className="main">
+        <div className="page-content">
         <div className={`address-input-area ${pipelineState !== 'idle' ? 'compact' : ''}`}>
           <AddressInput
             onSubmit={handleSubmit}
@@ -248,10 +229,11 @@ export default function App() {
             )}
           </div>
         )}
+        </div>
       </main>
 
       <footer className="footer">
-        <div className="container footer-content">
+        <div className="footer-content">
           <div className="footer-tag">
             <span className="footer-eyebrow">Built by</span>
             <span className="footer-product">Angel Herrera</span>

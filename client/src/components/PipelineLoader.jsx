@@ -104,6 +104,18 @@ export default function PipelineLoader({
       </div>
 
       <div className="pl-stage">
+        {pipelineState === 'running' && activeStep && (
+          <div className="pl-status">
+            <span className="pl-status-dot" />
+            <span
+              key={`${activeStep}-${messageIndex}`}
+              className="pl-status-text"
+            >
+              {messages[messageIndex]}
+            </span>
+          </div>
+        )}
+
         {imagery ? (
           <div className="pl-preview">
             <PreviewTile
@@ -124,18 +136,6 @@ export default function PipelineLoader({
           <div className="pl-skeleton">
             <SkeletonTile label="STREET VIEW" />
             <SkeletonTile label="SATELLITE" />
-          </div>
-        )}
-
-        {pipelineState === 'running' && activeStep && (
-          <div className="pl-status">
-            <span className="pl-status-dot" />
-            <span
-              key={`${activeStep}-${messageIndex}`}
-              className="pl-status-text"
-            >
-              {messages[messageIndex]}
-            </span>
           </div>
         )}
       </div>
