@@ -6,6 +6,8 @@ A roofing contractor spends 30+ minutes on every lead before they can quote — 
 
 Built for the [JobNimbus Hackathon 2026](https://github.com/JobNimbus/jobnimbus-hackathon-2026).
 
+<img width="3456" height="4544" alt="screencapture-localhost-5173-2026-05-09-13_36_50" src="https://github.com/user-attachments/assets/2bcbb262-9ea4-4711-ad33-7602d5dc32ce" />
+
 ---
 
 ## What you get for an address
