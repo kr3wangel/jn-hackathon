@@ -97,19 +97,32 @@ pipelineRouter.post('/pipeline', async (req, res) => {
       send('step', { step: 'vision', status: 'done', data: { skipped: true, reason: 'ANTHROPIC_API_KEY not set' } });
     }
 
-    // Re-run with vision data to fill in interior lines + flashing.
-    const lineItems = computeLineItems({
-      geoPolygon: roofOutline?.geoPolygon,
-      segments: roofData.segments,
-      visionData,
-    });
+    // Step 3: Measurements (line items + geometry)
+    send('step', { step: 'measurements', status: 'loading', message: 'Computing measurements...' });
+    let lineItems = null;
+    try {
+      lineItems = computeLineItems({
+        geoPolygon: roofOutline?.geoPolygon,
+        segments: roofData.segments,
+        visionData,
+      });
+    } catch (e) {
+      console.error('computeLineItems failed:', e);
+    }
+    send('step', { step: 'measurements', status: 'done', data: lineItems });
 
-    // Tiered pricing — applies the contractor's "configured rates" to the
-    // measured quantities. Flashing input combines wall + step flashing.
-    const pricing = computeTieredPricing({
-      totalAreaSqft: roofData.totalAreaSqft,
-      flashingFeet: (lineItems?.wallFlashingFeet || 0) + (lineItems?.stepFlashingFeet || 0),
-    });
+    // Step 4: Pricing (tiered estimate)
+    send('step', { step: 'pricing', status: 'loading', message: 'Building estimate...' });
+    let pricing = null;
+    try {
+      pricing = computeTieredPricing({
+        totalAreaSqft: roofData.totalAreaSqft,
+        flashingFeet: (lineItems?.wallFlashingFeet || 0) + (lineItems?.stepFlashingFeet || 0),
+      });
+    } catch (e) {
+      console.error('computeTieredPricing failed:', e);
+    }
+    send('step', { step: 'pricing', status: 'done', data: pricing });
 
     // Step 3: JobNimbus (requires JN_API_KEY)
     let jnResult = null;
@@ -125,17 +138,25 @@ pipelineRouter.post('/pipeline', async (req, res) => {
       send('step', { step: 'jobnimbus', status: 'done', data: { skipped: true, reason: 'JN_API_KEY not set' } });
     }
 
+    // Strip the per-edge breakdown from lineItems before serializing — it's
+    // a debug artifact (hundreds of 1ft entries on detailed polygons) that
+    // the UI doesn't render and that bloats the SSE payload to ~100KB,
+    // increasing the chance of the `done` record getting split across TCP
+    // chunks.
+    const lineItemsForClient = lineItems ? (() => { const { edges, ...rest } = lineItems; return rest; })() : null;
+
     send('done', {
       message: 'Pipeline complete',
       imagery,
       roofData,
       roofOutline,
       visionData,
-      lineItems,
+      lineItems: lineItemsForClient,
       pricing,
       jobnimbus: jnResult,
     });
   } catch (err) {
+    console.error('Pipeline error:', err);
     send('error', { message: err.message });
   } finally {
     res.end();

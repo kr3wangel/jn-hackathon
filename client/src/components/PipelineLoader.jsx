@@ -1,45 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import './PipelineLoader.css';
+import { STEP_MESSAGES } from './pipelineMessages.js';
 
 const STEP_DEFS = [
   { id: 'imagery', label: 'Capture', sub: 'Satellite + street view' },
-  { id: 'vision', label: 'AI Inspection', sub: 'Measurements + analysis' },
-  { id: 'jobnimbus', label: 'JobNimbus', sub: 'Lead created' },
+  { id: 'vision', label: 'AI Inspection', sub: 'Analyzing property' },
+  { id: 'measurements', label: 'Measurements', sub: 'Line items + geometry' },
+  { id: 'pricing', label: 'Estimate', sub: 'Tiered pricing' },
 ];
 
-const STEP_MESSAGES = {
-  imagery: [
-    'Pinging Google’s satellites…',
-    'Tracing every roof facet from above…',
-    'Reading pitch off each plane…',
-    'Snapping the property from the curb…',
-    'Stitching the rooftop outline…',
-    'Catching the imagery before clouds roll in…',
-    'Measuring eaves, rakes, and ridgelines…',
-    'Sizing up the lot…',
-  ],
-  vision: [
-    'Waking up the AI inspector…',
-    'Squinting at shingles for storm damage…',
-    'Counting chimneys and skylights…',
-    'Eyeballing the gutter run…',
-    'Hunting for missing shingles…',
-    'Rating the roof condition…',
-    'Logging every penetration and obstacle…',
-    'Cross-checking material from the curb…',
-    'Estimating roof age from wear patterns…',
-    'Running the line-item math…',
-  ],
-  jobnimbus: [
-    'Filing paperwork…',
-    'Creating a homeowner contact…',
-    'Spinning up a new job record…',
-    'Attaching measurements to the job description…',
-    'Stamping the inspection notes…',
-    'Hand-delivering it to your CRM…',
-  ],
-  idle: ['Warming up…'],
-};
 
 export default function PipelineLoader({
   steps,
@@ -54,7 +23,7 @@ export default function PipelineLoader({
   const [messageIndex, setMessageIndex] = useState(0);
 
   useEffect(() => {
-    setMessageIndex(0);
+    setMessageIndex(Math.floor(Math.random() * (STEP_MESSAGES[activeStep]?.length || 1)));
   }, [activeStep]);
 
   useEffect(() => {
@@ -66,7 +35,6 @@ export default function PipelineLoader({
   }, [activeStep, messages.length]);
 
   const visionActive = activeStep === 'vision';
-  const jnActive = activeStep === 'jobnimbus';
 
   return (
     <div className="pipeline-loader">
@@ -122,13 +90,11 @@ export default function PipelineLoader({
               src={imagery.streetView}
               label="STREET VIEW"
               scanning={visionActive}
-              dimmed={jnActive}
             />
             <PreviewTile
               src={imagery.satellite}
               label="SATELLITE"
               scanning={visionActive}
-              dimmed={jnActive}
               showGrid={visionActive}
             />
           </div>
@@ -145,9 +111,9 @@ export default function PipelineLoader({
   );
 }
 
-function PreviewTile({ src, label, scanning, dimmed, showGrid }) {
+function PreviewTile({ src, label, scanning, showGrid }) {
   return (
-    <div className={`pl-tile ${dimmed ? 'pl-tile--dimmed' : ''}`}>
+    <div className="pl-tile">
       <span className="pl-tile-label">{label}</span>
       <div className="pl-tile-canvas">
         <img src={src} alt={label} />
@@ -189,13 +155,22 @@ function StepIcon({ id, muted }) {
       </svg>
     );
   }
-  if (id === 'jobnimbus') {
+  if (id === 'measurements') {
     return (
       <svg viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <rect x="4" y="4" width="16" height="16" rx="2" />
-        <path d="M8 9h8" />
-        <path d="M8 13h8" />
-        <path d="M8 17h5" />
+        <path d="M21.3 15.3a2.4 2.4 0 0 1 0 3.4l-2.6 2.6a2.4 2.4 0 0 1-3.4 0L2.7 8.7a2.4 2.4 0 0 1 0-3.4l2.6-2.6a2.4 2.4 0 0 1 3.4 0z" />
+        <path d="M14.5 12.5l2-2" />
+        <path d="M11.5 9.5l2-2" />
+        <path d="M8.5 6.5l2-2" />
+        <path d="M17.5 15.5l2-2" />
+      </svg>
+    );
+  }
+  if (id === 'pricing') {
+    return (
+      <svg viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <line x1="12" y1="1" x2="12" y2="23" />
+        <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
       </svg>
     );
   }

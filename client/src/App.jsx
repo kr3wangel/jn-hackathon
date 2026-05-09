@@ -11,7 +11,7 @@ import LineItems from './components/LineItems';
 import PricingEstimate from './components/PricingEstimate';
 import './styles/app.css';
 
-const STEPS = ['imagery', 'vision', 'jobnimbus'];
+const STEPS = ['imagery', 'vision', 'measurements', 'pricing'];
 
 export default function App() {
   const [pipelineState, setPipelineState] = useState('idle');
@@ -23,6 +23,7 @@ export default function App() {
   const [pricing, setPricing] = useState(null);
   const [visionData, setVisionData] = useState(null);
   const [jnResult, setJnResult] = useState(null);
+  const [address, setAddress] = useState('');
   const [error, setError] = useState(null);
   const abortRef = useRef(null);
   const stateRef = useRef('idle');
@@ -33,6 +34,7 @@ export default function App() {
     const controller = new AbortController();
     abortRef.current = controller;
 
+    setAddress(place.formatted_address);
     setPipelineState('running');
     stateRef.current = 'running';
     setSteps({});
@@ -62,21 +64,24 @@ export default function App() {
       const decoder = new TextDecoder();
       let buffer = '';
       let receivedDone = false;
+      // Persisted across chunks: SSE events can be split mid-record when the
+      // payload is large, so the event name from one chunk's `event:` line
+      // must survive until the matching `data:` line arrives in a later chunk.
+      let pendingEvent = null;
 
       const processLines = (lines) => {
-        let eventName = null;
         for (const line of lines) {
           if (line.startsWith('event: ')) {
-            eventName = line.slice(7);
-          } else if (line.startsWith('data: ') && eventName) {
+            pendingEvent = line.slice(7);
+          } else if (line.startsWith('data: ') && pendingEvent) {
             try {
               const data = JSON.parse(line.slice(6));
-              if (eventName === 'done') receivedDone = true;
-              handleEvent(eventName, data);
+              if (pendingEvent === 'done') receivedDone = true;
+              handleEvent(pendingEvent, data);
             } catch (e) {
               // Ignore malformed event; keep streaming.
             }
-            eventName = null;
+            pendingEvent = null;
           }
         }
       };
@@ -113,6 +118,7 @@ export default function App() {
 
   function handleReset() {
     if (abortRef.current) abortRef.current.abort();
+    setAddress('');
     setPipelineState('idle');
     stateRef.current = 'idle';
     setSteps({});
@@ -124,6 +130,120 @@ export default function App() {
     setVisionData(null);
     setJnResult(null);
     setError(null);
+  }
+
+  async function imgToBase64(url) {
+    try {
+      const r = await fetch(url);
+      const blob = await r.blob();
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result);
+        reader.readAsDataURL(blob);
+      });
+    } catch { return null; }
+  }
+
+  function loadImage(url) {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.onload = () => resolve(img);
+      img.onerror = reject;
+      img.src = url;
+    });
+  }
+
+  async function compositeSatelliteWithOverlay(url, polygon, sqft) {
+    try {
+      const img = await loadImage(url);
+      const canvas = document.createElement('canvas');
+      canvas.width = img.naturalWidth;
+      canvas.height = img.naturalHeight;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0);
+
+      if (Array.isArray(polygon) && polygon.length >= 3) {
+        const w = canvas.width;
+        const h = canvas.height;
+        ctx.beginPath();
+        polygon.forEach((p, i) => {
+          const x = p.x * w;
+          const y = p.y * h;
+          if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+        });
+        ctx.closePath();
+        ctx.fillStyle = 'rgba(255, 77, 46, 0.18)';
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(255, 77, 46, 0.85)';
+        ctx.lineWidth = Math.max(3, Math.round(w / 180));
+        ctx.lineJoin = 'round';
+        ctx.lineCap = 'round';
+        ctx.stroke();
+
+        if (sqft) {
+          const cx = polygon.reduce((a, p) => a + p.x, 0) / polygon.length * w;
+          const cy = polygon.reduce((a, p) => a + p.y, 0) / polygon.length * h;
+          const label = `${sqft.toLocaleString()} sqft`;
+          const fontPx = Math.max(18, Math.round(w / 28));
+          ctx.font = `700 ${fontPx}px -apple-system, "Segoe UI", Roboto, sans-serif`;
+          const metrics = ctx.measureText(label);
+          const padX = fontPx * 0.7;
+          const padY = fontPx * 0.45;
+          const boxW = metrics.width + padX * 2;
+          const boxH = fontPx + padY * 2;
+          const boxX = cx - boxW / 2;
+          const boxY = cy - boxH / 2;
+          ctx.fillStyle = 'rgba(31, 62, 122, 0.92)';
+          const r = boxH / 2;
+          ctx.beginPath();
+          ctx.moveTo(boxX + r, boxY);
+          ctx.arcTo(boxX + boxW, boxY, boxX + boxW, boxY + boxH, r);
+          ctx.arcTo(boxX + boxW, boxY + boxH, boxX, boxY + boxH, r);
+          ctx.arcTo(boxX, boxY + boxH, boxX, boxY, r);
+          ctx.arcTo(boxX, boxY, boxX + boxW, boxY, r);
+          ctx.closePath();
+          ctx.fill();
+          ctx.fillStyle = '#FFFFFF';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(label, cx, cy);
+        }
+      }
+
+      return canvas.toDataURL('image/png');
+    } catch {
+      return null;
+    }
+  }
+
+  async function handleDownloadPdf() {
+    try {
+      const [satB64, svB64] = await Promise.all([
+        imagery?.satellite
+          ? compositeSatelliteWithOverlay(imagery.satellite, roofOutline?.polygon, roofData?.totalAreaSqft)
+          : null,
+        imagery?.streetView ? imgToBase64(imagery.streetView) : null,
+      ]);
+      const res = await fetch('/api/report', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          address, roofData, visionData, lineItems, pricing,
+          imageryBase64: { satellite: satB64, streetView: svB64 },
+        }),
+      });
+      if (!res.ok) throw new Error('PDF generation failed');
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = res.headers.get('Content-Disposition')?.split('filename="')[1]?.replace('"', '') || 'roof-report.pdf';
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error('PDF download failed:', err);
+    }
   }
 
   function handleEvent(event, data) {
@@ -214,6 +334,16 @@ export default function App() {
             {pricing && <PricingEstimate data={pricing} />}
 
             {visionData && <VisionAnalysis data={visionData} />}
+
+            <button className="download-pdf-btn" onClick={handleDownloadPdf} type="button">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8l-5-5z" />
+                <path d="M14 3v5h5" />
+                <path d="M12 12v6" />
+                <path d="M9 15l3 3 3-3" />
+              </svg>
+              Download Report PDF
+            </button>
 
             {jnResult && !jnResult.skipped && (
               <div className="jn-success">
