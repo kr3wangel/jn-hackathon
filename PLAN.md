@@ -295,6 +295,54 @@ Source: [brand.jobnimbus.com](https://brand.jobnimbus.com/)
 
 ---
 
+## Judging Criteria
+
+Top 5 advance to live finals. Five criteria:
+
+1. **Accuracy** — measurements close to reference data, consistent across test properties.
+2. **Product** — did you bridge from measurements into a *usable estimate*? Would a roofer actually use the output?
+3. **Experience** — how the tool feels end-to-end (address in → estimate out).
+4. **Craft** — code quality, novel use of AI, engineering judgment.
+5. **Demo** — how you bring it to life Saturday. Creativity. Wow factor.
+
+**Gap to address:** the "Product" criterion explicitly asks if we bridged into a *usable estimate*. We deliver measurements + line items + AI inspection but skip pricing by design. Worth considering: a contractor-facing PDF report (no pricing, but a deliverable they can hand off) or a simple tiered estimate placeholder to check the "estimate" box without overclaiming.
+
+---
+
+## Submission Requirements (Saturday May 9, 1:30 PM)
+
+### Must-do
+
+1. **Run the 5 test properties** and record total sqft for each:
+   - 3561 E 102nd Ct, Thornton, CO 80229
+   - 1612 S Canton Ave, Springfield, MO 65802
+   - 6310 Laguna Bay Court, Houston, TX 77041
+   - 3820 E Rosebrier St, Springfield, MO 65809
+   - 1261 20th Street, Newport News, VA 23607
+
+2. **Fill out the Google Form** (~5 min): team name, members, 200-word approach summary, phone number, sqft for each test property, optional demo video/example link.
+   - Form: https://docs.google.com/forms/d/e/1FAIpQLSfTL58Z0rVBgfx9l81lV7GpryhF7kDEuFKCgNG5i-m1RWDyUg/viewform
+
+3. **Public GitHub repo** with:
+   - `README.md` — what it does, how to run, anything notable
+   - Source code (already done)
+   - **Output for each test property** (PDF, screenshot, JSON — whatever the tool produces)
+
+### Good to have
+
+- Demo video or hosted link
+- Note on AI model choices and why
+- Known limitations / edge cases
+
+### Scoring notes
+
+- **"Build, don't buy"** — they'll flag submissions that match commercial reports without independent computation in the code. Our Solar API + polygon + vision pipeline is clearly independent work.
+- **AI scoring agent** inspects the repo during preliminary scoring — clean code and structure matter.
+- **Sqft must be roof area** (with pitch multiplier), not footprint. We already do this via Solar API.
+- Top 5 finalists notified by text at 2:00 PM → live demo (~5 min + Q&A) → winner at 4:00 PM.
+
+---
+
 ## Verification / Demo Checklist
 
 - [ ] Address autocomplete fires within ~250ms

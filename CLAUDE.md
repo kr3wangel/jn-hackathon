@@ -1,3 +1,14 @@
+## Always keep in mind
+
+While working on this project, always keep these two sections of `PLAN.md` front-of-mind:
+
+- **Judging Criteria** (`PLAN.md` → "Judging Criteria") — the 5 things we're scored on: Accuracy, Product, Experience, Craft, Demo. Every decision should ladder up to one of these.
+- **Submission Requirements** (`PLAN.md` → "Submission Requirements") — what must be in by Saturday 1:30 PM: 5 test-property sqft values, Google Form, public repo with README + outputs.
+
+Re-read both before suggesting new features or scope changes.
+
+---
+
 JobNimbus Hackathon — Build Brief
 Bounty
 $10K from JobNimbus (the #1 CRM for roofing/contracting). Build an AI pipeline that takes property information and produces an accurate customer-facing estimate, fully automated, end-to-end, in under 24 hours. Replaces a 30+ minute contractor workflow with seconds.
