@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import AddressInput from './components/AddressInput';
 import Timer from './components/Timer';
 import StatusTracker from './components/StatusTracker';
 import RoofStats from './components/RoofStats';
 import VisionAnalysis from './components/VisionAnalysis';
 import RoofOverlay from './components/RoofOverlay';
+import LineItems from './components/LineItems';
 import './styles/app.css';
 
 const STEPS = ['imagery', 'vision', 'jobnimbus'];
@@ -15,16 +16,26 @@ export default function App() {
   const [imagery, setImagery] = useState(null);
   const [roofData, setRoofData] = useState(null);
   const [roofOutline, setRoofOutline] = useState(null);
+  const [lineItems, setLineItems] = useState(null);
   const [visionData, setVisionData] = useState(null);
   const [jnResult, setJnResult] = useState(null);
   const [error, setError] = useState(null);
+  const abortRef = useRef(null);
+  const stateRef = useRef('idle');
 
   function handleSubmit(place) {
+    // Cancel any in-flight pipeline so a new submission doesn't tangle with it.
+    if (abortRef.current) abortRef.current.abort();
+    const controller = new AbortController();
+    abortRef.current = controller;
+
     setPipelineState('running');
+    stateRef.current = 'running';
     setSteps({});
     setImagery(null);
     setRoofData(null);
     setRoofOutline(null);
+    setLineItems(null);
     setVisionData(null);
     setJnResult(null);
     setError(null);
@@ -40,10 +51,30 @@ export default function App() {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body,
+      signal: controller.signal,
     }).then(async (res) => {
       const reader = res.body.getReader();
       const decoder = new TextDecoder();
       let buffer = '';
+      let receivedDone = false;
+
+      const processLines = (lines) => {
+        let eventName = null;
+        for (const line of lines) {
+          if (line.startsWith('event: ')) {
+            eventName = line.slice(7);
+          } else if (line.startsWith('data: ') && eventName) {
+            try {
+              const data = JSON.parse(line.slice(6));
+              if (eventName === 'done') receivedDone = true;
+              handleEvent(eventName, data);
+            } catch (e) {
+              // Ignore malformed event; keep streaming.
+            }
+            eventName = null;
+          }
+        }
+      };
 
       while (true) {
         const { done, value } = await reader.read();
@@ -52,21 +83,26 @@ export default function App() {
         buffer += decoder.decode(value, { stream: true });
         const lines = buffer.split('\n');
         buffer = lines.pop();
+        processLines(lines);
+      }
 
-        let eventName = null;
-        for (const line of lines) {
-          if (line.startsWith('event: ')) {
-            eventName = line.slice(7);
-          } else if (line.startsWith('data: ') && eventName) {
-            const data = JSON.parse(line.slice(6));
-            handleEvent(eventName, data);
-            eventName = null;
-          }
-        }
+      // Flush any trailing event sitting in the buffer.
+      buffer += decoder.decode();
+      if (buffer.length > 0) {
+        processLines(buffer.split('\n'));
+      }
+
+      // Safety net: if the stream closed without an explicit `done` event,
+      // transition to done so the UI doesn't hang in `running` forever.
+      if (!receivedDone && stateRef.current === 'running') {
+        setPipelineState('done');
+        stateRef.current = 'done';
       }
     }).catch((err) => {
+      if (err.name === 'AbortError') return; // expected when superseded
       setError(err.message);
       setPipelineState('error');
+      stateRef.current = 'error';
     });
   }
 
@@ -86,13 +122,16 @@ export default function App() {
       }
     } else if (event === 'done') {
       setPipelineState('done');
+      stateRef.current = 'done';
       if (data.roofData) setRoofData(data.roofData);
       if (data.roofOutline) setRoofOutline(data.roofOutline);
+      if (data.lineItems) setLineItems(data.lineItems);
       if (data.visionData) setVisionData(data.visionData);
       if (data.jobnimbus) setJnResult(data.jobnimbus);
     } else if (event === 'error') {
       setError(data.message);
       setPipelineState('error');
+      stateRef.current = 'error';
     }
   }
 
@@ -134,6 +173,8 @@ export default function App() {
             )}
 
             {roofData && <RoofStats data={roofData} />}
+
+            {lineItems && <LineItems data={lineItems} />}
 
             {imagery && (
               <div className="imagery-grid single">

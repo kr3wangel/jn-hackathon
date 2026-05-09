@@ -19,30 +19,46 @@ export async function fetchRoofPolygon(lat, lng) {
   const ring = extractLargestPolygon(mask, width, height);
   if (!ring) return null;
 
-  // Simplify in mask pixel space (1 px = 0.25m at typical Solar API resolution).
-  // Tolerance of 1.5 px ≈ 0.4 m collapses pixel-edge zigzag while preserving
-  // every real corner of the roof.
-  const simplified = simplifyDouglasPeucker(ring, 1.5);
+  // Simplify in mask pixel space — 1.5 px tolerance ≈ 0.4 m. This is for the
+  // VISUAL outline (clean corners, no zigzag) only. We keep the unsimplified
+  // ring for measurement so we don't lose perimeter from small bumpouts.
+  const simplifiedMaskRing = simplifyDouglasPeucker(ring, 1.5);
 
   const toLatLng = makeProjector(geoKeys);
   const center = { lat, lng };
   // North-up GeoTIFFs: x increases east, y decreases as we go down rows.
   const xRes = Math.abs(resolution[0]);
   const yRes = Math.abs(resolution[1]);
-  const normalized = simplified.map(([px, py]) => {
+
+  const projectMaskPoint = ([px, py]) => {
     const projX = origin[0] + px * xRes;
     const projY = origin[1] - py * yRes;
-    const point = toLatLng(projX, projY);
-    return latLngToStaticMapNorm(point, center, STATIC_MAP_ZOOM, STATIC_MAP_SIZE);
-  });
+    return toLatLng(projX, projY);
+  };
 
-  const trimmed = removeClosingDuplicate(normalized);
+  const visualGeoRing = simplifiedMaskRing.map(projectMaskPoint);
+  const detailedGeoRing = ring.map(projectMaskPoint);
+
+  const polygon = visualGeoRing.map((point) =>
+    latLngToStaticMapNorm(point, center, STATIC_MAP_ZOOM, STATIC_MAP_SIZE)
+  );
 
   return {
-    polygon: trimmed,
+    polygon: removeClosingDuplicate(polygon),
+    geoPolygon: removeClosingGeoDuplicate(detailedGeoRing),
     confidence: 'high',
     source: 'google-solar-datalayers',
   };
+}
+
+function removeClosingGeoDuplicate(points) {
+  if (points.length < 2) return points;
+  const first = points[0];
+  const last = points[points.length - 1];
+  if (Math.abs(first.lat - last.lat) < 1e-9 && Math.abs(first.lng - last.lng) < 1e-9) {
+    return points.slice(0, -1);
+  }
+  return points;
 }
 
 async function fetchDataLayers(lat, lng, key) {

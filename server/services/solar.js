@@ -38,6 +38,7 @@ function parseRoofData(data) {
       pitchDegrees: pitchDeg,
       pitchRatio: degreesToRiseRun(pitchDeg),
       azimuthDegrees: azimuth,
+      boundingBox: seg.boundingBox || null,
     };
   });
 

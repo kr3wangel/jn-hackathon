@@ -18,7 +18,7 @@ async function jnFetch(endpoint, body) {
   return res.json();
 }
 
-export async function pushToJobNimbus({ address, lat, lng, zip, roofData, visionData }) {
+export async function pushToJobNimbus({ address, lat, lng, zip, roofData, visionData, lineItems }) {
   const nameParts = parseAddressName(address);
   const now = Math.floor(Date.now() / 1000);
 
@@ -35,7 +35,7 @@ export async function pushToJobNimbus({ address, lat, lng, zip, roofData, vision
     date_updated: now,
   });
 
-  const description = buildJobDescription(address, roofData, visionData);
+  const description = buildJobDescription(address, roofData, visionData, lineItems);
 
   const job = await jnFetch('/jobs', {
     name: `Roof Inspection — ${nameParts.line1}`,
@@ -60,7 +60,7 @@ export async function pushToJobNimbus({ address, lat, lng, zip, roofData, vision
   };
 }
 
-function buildJobDescription(address, roofData, visionData) {
+function buildJobDescription(address, roofData, visionData, lineItems) {
   const lines = [`AI roof inspection for ${address}.`];
   if (roofData) {
     lines.push('');
@@ -69,6 +69,19 @@ function buildJobDescription(address, roofData, visionData) {
     lines.push(`  Roofing squares: ${roofData.roofingSquares}`);
     lines.push(`  Avg pitch: ${roofData.avgPitchRatio}`);
     lines.push(`  Facets: ${roofData.facetCount}`);
+  }
+  if (lineItems) {
+    lines.push('');
+    lines.push('Line items (linear feet):');
+    pushLineItem(lines, 'Perimeter', lineItems.perimeterFeet, 'measured');
+    pushLineItem(lines, 'Eaves', lineItems.eaveFeet, lineItems.sources.eaveRake);
+    pushLineItem(lines, 'Rakes', lineItems.rakeFeet, lineItems.sources.eaveRake);
+    pushLineItem(lines, 'Gutter', lineItems.gutterFeet, 'measured');
+    pushLineItem(lines, 'Ridges', lineItems.ridgeFeet, lineItems.sources.ridges);
+    pushLineItem(lines, 'Hips', lineItems.hipFeet, lineItems.sources.hips);
+    pushLineItem(lines, 'Valleys', lineItems.valleyFeet, lineItems.sources.valleys);
+    pushLineItem(lines, 'Wall flashing', lineItems.wallFlashingFeet, lineItems.sources.wallFlashing);
+    pushLineItem(lines, 'Step flashing', lineItems.stepFlashingFeet, lineItems.sources.stepFlashing);
   }
   if (visionData && !visionData.skipped) {
     lines.push('');
@@ -84,6 +97,15 @@ function buildJobDescription(address, roofData, visionData) {
     }
   }
   return lines.join('\n');
+}
+
+function pushLineItem(lines, label, value, source) {
+  if (value == null) {
+    lines.push(`  ${label}: — (not detected)`);
+    return;
+  }
+  const tag = source === 'measured' ? '' : ` (${source})`;
+  lines.push(`  ${label}: ${value} ft${tag}`);
 }
 
 function parseAddressName(address) {

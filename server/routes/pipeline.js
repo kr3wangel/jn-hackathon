@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { fetchImagery } from '../services/imagery.js';
 import { fetchBuildingInsights } from '../services/solar.js';
 import { fetchRoofPolygon } from '../services/roofMask.js';
+import { computeLineItems } from '../services/roofMeasurements.js';
 import { analyzeProperty } from '../services/vision.js';
 import { pushToJobNimbus } from '../services/jobnimbus.js';
 import { geocodeAddress } from '../services/geocode.js';
@@ -49,12 +50,25 @@ pipelineRouter.post('/pipeline', async (req, res) => {
 
     send('step', { step: 'imagery', status: 'done', data: { ...imagery, roofData, roofOutline } });
 
+    // Compute geometric line items first (perimeter, eaves, rakes) — these
+    // become scale anchors for the vision prompt.
+    const geometricLineItems = computeLineItems({
+      geoPolygon: roofOutline?.geoPolygon,
+      segments: roofData.segments,
+      visionData: null,
+    });
+
     // Step 2: Vision (requires ANTHROPIC_API_KEY)
     let visionData = null;
     if (process.env.ANTHROPIC_API_KEY) {
       send('step', { step: 'vision', status: 'loading', message: 'Analyzing roof with AI...' });
       try {
-        visionData = await analyzeProperty(imagery.satellite, imagery.streetView);
+        visionData = await analyzeProperty(imagery.satellite, imagery.streetView, {
+          totalAreaSqft: roofData.totalAreaSqft,
+          facetCount: roofData.facetCount,
+          avgPitchRatio: roofData.avgPitchRatio,
+          perimeterFeet: geometricLineItems?.perimeterFeet,
+        });
         send('step', { step: 'vision', status: 'done', data: visionData });
       } catch (err) {
         send('step', { step: 'vision', status: 'done', data: { skipped: true, reason: err.message } });
@@ -63,12 +77,19 @@ pipelineRouter.post('/pipeline', async (req, res) => {
       send('step', { step: 'vision', status: 'done', data: { skipped: true, reason: 'ANTHROPIC_API_KEY not set' } });
     }
 
+    // Re-run with vision data to fill in interior lines + flashing.
+    const lineItems = computeLineItems({
+      geoPolygon: roofOutline?.geoPolygon,
+      segments: roofData.segments,
+      visionData,
+    });
+
     // Step 3: JobNimbus (requires JN_API_KEY)
     let jnResult = null;
     if (process.env.JN_API_KEY) {
       send('step', { step: 'jobnimbus', status: 'loading', message: 'Pushing to JobNimbus...' });
       try {
-        jnResult = await pushToJobNimbus({ address, lat, lng, zip, roofData, visionData });
+        jnResult = await pushToJobNimbus({ address, lat, lng, zip, roofData, visionData, lineItems });
         send('step', { step: 'jobnimbus', status: 'done', data: jnResult });
       } catch (jnErr) {
         send('step', { step: 'jobnimbus', status: 'done', data: { skipped: true, reason: jnErr.message } });
@@ -83,6 +104,7 @@ pipelineRouter.post('/pipeline', async (req, res) => {
       roofData,
       roofOutline,
       visionData,
+      lineItems,
       jobnimbus: jnResult,
     });
   } catch (err) {

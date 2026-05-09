@@ -1,0 +1,128 @@
+.line-items {
+  background: #fff;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  padding: 24px;
+  margin-top: 32px;
+}
+
+.line-items-header {
+  margin-bottom: 16px;
+}
+
+.line-items-header .section-title {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--jn-text);
+}
+
+.line-items-sub {
+  margin: 4px 0 0;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--jn-text-muted);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.line-items-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.line-items-table thead th {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.06em;
+  color: var(--jn-text-muted);
+  text-transform: uppercase;
+  font-weight: 500;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--jn-border);
+  text-align: left;
+}
+
+.line-items-table thead .col-value {
+  text-align: right;
+}
+
+.line-items-table thead .col-source {
+  text-align: right;
+}
+
+.line-items-table tbody tr {
+  border-bottom: 1px solid var(--jn-border);
+}
+
+.line-items-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.line-items-table tbody tr.is-missing {
+  color: var(--jn-text-muted);
+}
+
+.line-items-table tbody th.col-label {
+  font-weight: 600;
+  color: var(--jn-text);
+  text-align: left;
+  padding: 10px 0;
+}
+
+.line-items-table tbody td.col-value {
+  text-align: right;
+  padding: 10px 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.value-num {
+  font-weight: 700;
+  color: var(--jn-text);
+  font-size: 1rem;
+}
+
+.value-unit {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--jn-text-muted);
+  letter-spacing: 0.04em;
+  margin-left: 2px;
+  text-transform: uppercase;
+}
+
+.line-items-table tbody td.col-source {
+  text-align: right;
+  padding: 10px 0;
+}
+
+.source-tag {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
+}
+
+.source-tag.measured {
+  background: #ecfdf5;
+  color: #047857;
+}
+
+.source-tag.estimated {
+  background: #fff7ed;
+  color: #c2410c;
+}
+
+.source-tag.calibrated {
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+
+.source-tag.unmeasured {
+  background: var(--jn-cloud);
+  color: var(--jn-text-muted);
+}
