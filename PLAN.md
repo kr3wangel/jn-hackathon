@@ -20,12 +20,13 @@ Build an AI pipeline that takes a property address and produces a fully-prepped 
 | 2 — Roof measurement + AI analysis | ✅ Done |
 | 3 — Line-item report (linear feet) | ✅ Done |
 | 4 — Patio / non-roof structure detection | ✅ Done |
-| 5 — UX polish | ✅ Done (this session) |
+| 5 — UX polish | ✅ Done |
+| 5.5 — Portal-spoof reframe + pricing | ✅ Done (last session) |
 | 6 — JobNimbus integration | ⏸ Skips gracefully without `JN_API_KEY`; needs real key + verify against sandbox |
 | 7 — Demo prep + reliability test | ⏳ Pending |
-| 8 — Submission (public repo + examples + sqft form) | ⏳ Pending |
+| 8 — Submission (public repo + examples + sqft form) | 🔥 **DEADLINE TODAY 1:30 PM** |
 
-**Submission deadline:** Saturday 1:30 PM — submit total sqft for the 5 benchmark *test* addresses via the [submission form](https://github.com/JobNimbus/jobnimbus-hackathon-2026/blob/main/SUBMISSION.md). Also need a public GitHub repo with `examples/` folder.
+**Submission deadline:** Saturday May 9, 2026 at **1:30 PM** — submit total sqft for the 5 benchmark *test* addresses via the [submission form](https://docs.google.com/forms/d/e/1FAIpQLSfTL58Z0rVBgfx9l81lV7GpryhF7kDEuFKCgNG5i-m1RWDyUg/viewform). Also need a public GitHub repo with output artifacts per test property.
 
 ---
 
@@ -45,7 +46,7 @@ Address input (server-side Google Places Autocomplete)
   → JobNimbus push: POST contact → POST job with full inspection in description
 ```
 
-**No pricing.** Variance between contractors is too high to publish a generic quote. The deliverable is a fully-prepped lead — measurements, photos, AI condition notes, and quantities — so the contractor applies their own pricing.
+**Pricing reframed:** the app now lives inside a JobNimbus portal spoof, so the "no pricing" stance shifted to "using your configured rates." Tiered estimate (Good / Better / Best) renders in the results and applies industry-anchored per-square / per-linear-foot / flat-fee defaults — defensible because the framing is "the contractor configured these rates," not "we guessed national averages." The contractor can still override; the demo never has to.
 
 ---
 
@@ -62,29 +63,38 @@ Address input (server-side Google Places Autocomplete)
 - **`services/roofMask.js`** — fetches Solar `dataLayers:get` GeoTIFF, decodes with `geotiff` lib, runs `d3-contour` to extract roof outline, picks the contour whose centroid is closest to the image center (not the largest — important for getting the right house), reprojects from UTM→WGS84 via `proj4`, projects to normalized 0-1 coords matching the static map, simplifies with Douglas-Peucker (1.5 px tolerance) for visual rendering, keeps the unsimplified ring for measurement. Patio bbox masking happens before contour extraction; sanity-check falls back to un-trimmed polygon if over-trim detected.
 - **`services/roofMeasurements.js`** — eave/rake classification via per-edge bearing vs nearest Solar segment azimuth; haversine for edge length; facet-anchored calibration for vision-estimated ridges/hips/valleys (FT_PER_FACET = 27, threshold 0.9). Industry rules-of-thumb for flashing per chimney/skylight/dormer. **Always returns a populated object** even when polygon is missing — geometric fields fall back to null, vision-based items still populate.
 - **`services/vision.js`** — three Claude calls in parallel: street-view inspection (material/condition/age/damage/obstacles), satellite analysis (shape/material/damage/obstacles + line enumeration with notes), polygon detection prompt (deprecated — replaced by Solar mask). Satellite prompt includes ground-truth scale anchors (perimeter, facet count, area, pitch) and roof-shape-specific heuristic ranges. `max_tokens: 3072` for satellite to handle full enumeration.
-- **`services/jobnimbus.js`** — REST client: POST contact → POST job (no estimate, per "no pricing" decision). Job description embeds measurements + line items + AI analysis.
+- **`services/jobnimbus.js`** — REST client: POST contact → POST job (no estimate object — pricing is part of the job description body, not a JN Estimate record). Job description embeds measurements + line items + AI analysis.
+- **`services/pricing.js`** — tiered package generator (Good / Better / Best). Per-square + per-linear-foot + flat-fee defaults applied to measured quantities. Sources cited inline (HomeAdvisor 2024, Roofing Calculator, IBHS Class 4 premium guidance). Architectural tier flagged `recommended: true` so the UI can highlight it ("Most Selected" badge).
 
 ### Frontend (`client/src/`)
 
-- **`App.jsx`** — SSE consumer with AbortController, buffer flush on stream close, and done-event safety net (so the UI never hangs in `running`). Hero hides once pipeline starts; address input collapses to a slim bar. Results render as a single batched reveal (not piecemeal pop-in) once pipeline is `done`.
-- **`components/AddressInput.jsx`** — debounced server-side autocomplete with dropdown, keyboard nav, and "submitted-once" guard so the dropdown doesn't reappear after pipeline runs.
-- **`components/RoofOverlay.jsx`** — 16:9 hero card with the satellite image + SVG polygon overlay + sqft label at centroid. Conditional patio note when trim fell back to un-trimmed.
-- **`components/RoofStats.jsx`** — 4 tiles for first-glance: Total Roof Area (with whole-square subtext), Avg Pitch, Material, Est. Age. Material/age pulled from vision so the contractor doesn't have to scroll.
-- **`components/LineItems.jsx`** — 2-card grid (Perimeter & Edges / Interior Lines & Flashing) mirroring AI Analysis layout. Reuses `.kv-table` classes. **No source tags** (they undermine confidence) — pure linear-feet numbers.
-- **`components/VisionAnalysis.jsx`** — 2-card grid for AI inspection results. Material & Condition / Features & Obstacles.
-- **`components/StatusTracker.jsx`** — pipeline progress dots + cycling per-step loader phrases (8 imagery / 10 vision / 6 JobNimbus messages).
-- **`components/Timer.jsx`** — live elapsed timer; freezes on done.
+- **`App.jsx`** — SSE consumer with AbortController, buffer flush on stream close, and done-event safety net (so the UI never hangs in `running`). `handleReset` (used by the address-input × button and the page-header back arrow) clears all pipeline state and returns to the empty-state. Results render as a single batched reveal once pipeline is `done`.
+- **`components/PortalNav.jsx`** — spoofed JobNimbus top-nav. JN wordmark + horizontal icon-on-top/label-below items (Home, Jobs, Calendar, Insights, Engage, Payments, **Roofing Estimator** active with PDF doc icon and blue underline). Right cluster: Create + button, search input, AH avatar (green circle). Inactive items are static stubs (`tabIndex=-1`, `cursor: default`) — only the estimator is functional. Mobile collapses to JN logo + active item pill + Create.
+- **`components/PageHeader.jsx`** — JN-style "← Page Title [Beta]" strip below the nav. Back arrow calls `handleReset`. The Beta badge mirrors JN's actual "Smart Estimate Setup [Beta]" treatment. Renders the Timer in its actions slot.
+- **`components/AddressInput.jsx`** — debounced server-side autocomplete with dropdown, keyboard nav, and a clear (×) button that calls the parent's `onReset` to fully clear pipeline state. "Submitted-once" guard so the dropdown doesn't reappear after pipeline runs.
+- **`components/PipelineLoader.jsx`** — replaces the old StatusTracker. During the wait it shows: a beefier step tracker (custom icons per step, pulse-ring on the active step, gradient connector lines that fill as steps complete), the cycling status message (positioned ABOVE the imagery so it's the most visible element), and a live imagery preview that reveals as soon as imagery is fetched. While vision is running, an animated scan sweep + grid overlay runs across the satellite — sells "AI is looking at your roof right now."
+- **`components/RoofOverlay.jsx`** — satellite card with SVG polygon overlay + sqft label at centroid. Conditional patio note when trim fell back to un-trimmed.
+- **`components/RoofStats.jsx`** — 4 tiles: Total Roof Area, Avg Pitch, Material, Est. Age.
+- **`components/LineItems.jsx`** — 2-card grid: Perimeter & Edges / Interior Lines & Flashing.
+- **`components/PricingEstimate.jsx`** — 3-card grid: Good / Better / Best. Each card shows tier name, material, big total in JN deep-blue, warranty term, 3 highlight bullets (warranty / underlayment / wind-rating / hail-rating), and a breakdown footer (squares × rate, flashing × rate, permits + cleanup). Header reads "Estimate" + "USING YOUR CONFIGURED RATES" caption — sells the portal-spoof framing without apologizing.
+- **`components/VisionAnalysis.jsx`** — 2-card grid: Material & Condition / Features & Obstacles.
+- **`components/Timer.jsx`** — live elapsed timer; freezes on done. Renders inside the PageHeader actions slot.
+- **`public/jn-logo.svg`** + **`jn-logo-white.svg`** — JobNimbus wordmarks (downloaded from jobnimbus.com CDN, recolored for our light header).
+- **`public/jn-favicon.svg`** — JN icon glyph in JN blue.
 
 ### Layout flow (top to bottom)
 
-1. Slim header (title + timer)
-2. Compact address input (or hero with title + subtitle when idle)
-3. Status tracker with cycling loader messages (during pipeline)
-4. **Imagery row**: Street View (left) + Satellite-with-polygon (right), 50/50, 16:9 each
-5. **4 stat tiles**: Total Roof Area · Avg Pitch · Material · Est. Age
-6. **Line Items** (2-card grid)
-7. **AI Roof Analysis** (2-card grid)
-8. JobNimbus push confirmation banner (or skipped banner if no key)
+1. **PortalNav** — spoofed JN top-bar (sticky)
+2. **PageHeader** — `← Roofing Estimator [Beta]` with Timer
+3. **Address input** (empty state of the Roofing Estimator page; no hero)
+4. **PipelineLoader** during run: step tracker → cycling status message → imagery preview with scan animation
+5. **Imagery row**: Street View + Satellite-with-polygon, 50/50, 16:9 each
+6. **4 stat tiles**: Total Roof Area · Avg Pitch · Material · Est. Age
+7. **Line Items** (2-card grid)
+8. **Pricing Estimate** (3-card grid: Good / Better / Best)
+9. **AI Roof Analysis** (2-card grid)
+10. JobNimbus push confirmation banner (or skipped banner if no key)
+11. **Footer** — "BUILT BY Angel Herrera" / "JN HACKATHON · 2026"
 
 ---
 
@@ -96,10 +106,12 @@ Address input (server-side Google Places Autocomplete)
 4. **Patio detection via pitch outliers** — Solar's mask is built for solar panel placement and includes attached patio covers / carports / awnings. We detect these by pitch outliers (patio covers run 1:12–3:12; main roofs run 4:12+). Cleanest fix: zero those bboxes in the GeoTIFF before contour extraction. Sanity check on over-trim falls back to un-trimmed polygon when Solar's axis-aligned bboxes overlap with main-roof segments.
 5. **Vision for the qualitative half** — material, condition, damage, obstacles, line enumeration. Solar gives geometry; vision gives judgment. Without vision, this is a tape measure, not an inspection.
 6. **Facet-anchored calibration for interior lines** — vision enumerates each ridge/hip/valley with notes, but undercounts on complex roofs. We anchor on facet count × 27 ft/facet (industry rule of thumb) and only scale model output up if it falls below 90% of expected. Calibration constants documented inline as industry rules of thumb, not example-set-tuned.
-7. **No pricing** — variance between contractors is too high. The lead lands in JN with full quantities; the contractor applies their own pricing.
-8. **Roofing squares = ceil(sqft/100), no waste factor** — squares are sold as whole units; every contractor uses their own waste percentage; applying ours conflicts with their bid math.
+7. **Tiered pricing using "configured rates" framing** — judges' rubric explicitly asks "did you bridge measurements into a usable estimate?" so we ship Good / Better / Best totals. The portal-spoof reframe (#11 below) lets us present these as the contractor's configured rates rather than a generic public quote — confident UI copy ("Using your configured rates") with no apologetic language. Per-square / per-LF / flat-fee constants are anchored to public industry sources (HomeAdvisor 2024, Roofing Calculator, IBHS) and cited inline so the AI scoring agent can verify "Build, don't buy."
+8. **Roofing squares = ceil(sqft/100), no waste factor** — squares are sold as whole units; every contractor uses their own waste percentage; applying ours conflicts with their bid math. (Pricing service follows the same rule — contractors' configured rates would already bake in their waste %.)
 9. **SSE for pipeline progress** — Server-Sent Events from Express. AbortController on the client cancels superseded requests; buffer flush + done-event safety net so the UI never hangs.
 10. **No database** — everything flows through the pipeline and lands in JN.
+11. **Portal spoof, not marketing site** — the app is framed as a feature *inside* JobNimbus (top nav, page header with Beta badge, "Roofing Estimator" as an active nav item), not a third-party tool with a hero. Judges are JN engineers; this lands the "what AssistAI looks like when it ships" frame the moment they open the page, before they read a word of copy. Inactive nav items are static stubs to keep risk low — only the estimator is functional.
+12. **Live imagery preview during the ~15s wait** — instead of hiding the satellite + street view until pipeline `done`, PipelineLoader reveals them as soon as fetched and runs an animated scan sweep across the satellite while vision is working. Fills dead air with "the tool is doing something" motion; the cycling status message sits above the preview as the most visible element.
 
 ---
 
@@ -119,33 +131,36 @@ Address input (server-side Google Places Autocomplete)
 
 ## Pending Work
 
-### JobNimbus integration (Phase 6 — pending real key)
-- Get a JN trial account + generate API key, drop into `.env` as `JN_API_KEY`.
-- Test end-to-end: address → contact + job appears in the JN sandbox UI.
-- Verify the job description renders cleanly (line items in the body).
-- The "mic-drop moment" of the demo: alt-tab to JN, refresh, the job is there.
+### 🔥 Submission day — Saturday May 9, 1:30 PM (≤4.5 hrs from session start)
 
-### Demo prep (Phase 7)
-- Test on 5–10 addresses (including all 5 benchmark example properties) to verify reliability.
-- Pre-record a fallback video of a successful run (insurance against demo-day API hiccups).
+Deadline-critical, in priority order:
+
+1. **Run the pipeline on the 5 test properties** and record total sqft for each:
+   1. 3561 E 102nd Ct, Thornton, CO 80229
+   2. 1612 S Canton Ave, Springfield, MO 65802
+   3. 6310 Laguna Bay Court, Houston, TX 77041
+   4. 3820 E Rosebrier St, Springfield, MO 65809
+   5. 1261 20th Street, Newport News, VA 23607
+2. **Make the GitHub repo public**:
+   - Verify `.env` is gitignored, no secrets in commits (already clean per git log)
+   - Top-level `README.md`: project overview, architecture diagram, setup instructions, how to run, screenshot
+3. **Capture output artifacts for the test properties** (the form asks for these and the AI scoring agent will look for them):
+   - One folder per address (slug name) under `examples/` containing `satellite.jpg`, `streetview.jpg`, `output.json` (full pipeline output)
+   - Optional: PDF deliverable for each (if the PDF builder ships in time)
+   - Top-level `examples/README.md` with a table: address, sqft, pipeline time
+4. **Fill out the Google Form** (~5 min): team name + members, ≤200-word approach summary, phone number, sqft for each test property, optional demo video / hosted link.
+   - Form: https://docs.google.com/forms/d/e/1FAIpQLSfTL58Z0rVBgfx9l81lV7GpryhF7kDEuFKCgNG5i-m1RWDyUg/viewform
+
+### After submission: finalist round (2:00 PM if selected)
+
+- Top 5 finalists notified by text at 2:00 PM → live demo (~5 min + Q&A) 2:00–3:30 PM → winner at 4:00 PM.
+- Pre-record a fallback video of a successful run before 2:00 PM (insurance against demo-day API hiccups).
 - Rehearse 90-second demo script.
-- Backup slides: architecture diagram, accuracy chart vs benchmark references.
 
-### Submission (Phase 8)
-- **Submit benchmark sqft values** for the 5 test properties via the form (deadline Saturday 1:30 PM):
-  1. 3561 E 102nd Ct, Thornton, CO 80229
-  2. 1612 S Canton Ave, Springfield, MO 65802
-  3. 6310 Laguna Bay Court, Houston, TX 77041
-  4. 3820 E Rosebrier St, Springfield, MO 65809
-  5. 1261 20th Street, Newport News, VA 23607
-- **Public GitHub repo**:
-  - Verify `.env` is gitignored, no secrets in commits
-  - Clean commit history (already coherent — see git log)
-  - Top-level `README.md`: project overview, architecture diagram, setup instructions, how to run, screenshot
-- **`examples/` folder** with 3–5 captured runs:
-  - One folder per address (slug name), containing `satellite.jpg`, `streetview.jpg`, `output.json` (full pipeline output)
-  - Pick diverse addresses (regions, sizes, materials, conditions); at least one Utah address (JN is in Orem)
-  - Top-level `examples/README.md` with a table: address, sqft, total interior LF, pipeline time
+### Stretch (only if submission tasks are done)
+
+- **PDF deliverable** — branded report with measurements + AI inspection + tiered estimate. High-impact for the demo because contractors actually hand PDFs to homeowners; doubles as the per-property output artifact for `examples/`.
+- **JobNimbus integration** (Phase 6) — get a JN trial account + generate API key, drop into `.env` as `JN_API_KEY`. Test end-to-end: address → contact + job appears in the JN sandbox UI. The "mic-drop moment" of the demo: alt-tab to JN, refresh, the job is there. *Skips gracefully without the key, so this only matters if we make finalist round.*
 
 ---
 
@@ -197,7 +212,7 @@ jn-hackathon/
 ├── server/
 │   ├── index.js                    # Express entry
 │   ├── routes/
-│   │   ├── pipeline.js             # SSE pipeline orchestration
+│   │   ├── pipeline.js             # SSE pipeline orchestration (now also includes pricing)
 │   │   ├── autocomplete.js         # Google Places proxy
 │   │   ├── jobnimbus.js            # JN API proxy (currently inline in services)
 │   │   └── health.js
@@ -209,20 +224,27 @@ jn-hackathon/
 │       ├── imagery.js              # Static Maps URLs
 │       ├── geocode.js              # Geocoding API
 │       ├── vision.js               # Claude vision pipeline
+│       ├── pricing.js              # Tiered estimate (Good/Better/Best) — industry-anchored rates
 │       └── jobnimbus.js            # JN REST client
 ├── client/
-│   ├── index.html
-│   ├── vite.config.js
+│   ├── index.html                  # Tab title + favicon link
+│   ├── public/
+│   │   ├── jn-logo.svg             # Deep-blue wordmark for the portal nav
+│   │   ├── jn-logo-white.svg       # Original CDN download (kept for reference)
+│   │   └── jn-favicon.svg          # JN icon glyph in JN blue
 │   └── src/
-│       ├── App.jsx                 # SSE consumer + layout
+│       ├── App.jsx                 # SSE consumer + layout (no hero — portal-shell framing)
 │       ├── main.jsx
 │       ├── components/
-│       │   ├── AddressInput.jsx
+│       │   ├── PortalNav.jsx       # Spoofed JN top-nav
+│       │   ├── PageHeader.jsx      # ← Roofing Estimator [Beta] strip
+│       │   ├── AddressInput.jsx    # Autocomplete + clear (×) reset button
 │       │   ├── Timer.jsx
-│       │   ├── StatusTracker.jsx
+│       │   ├── PipelineLoader.jsx  # Replaces StatusTracker — live preview + scan animation
 │       │   ├── RoofOverlay.jsx
 │       │   ├── RoofStats.jsx
 │       │   ├── LineItems.jsx
+│       │   ├── PricingEstimate.jsx # 3-tier package cards
 │       │   └── VisionAnalysis.jsx
 │       └── styles/
 │           ├── global.css
@@ -277,15 +299,16 @@ Source: [brand.jobnimbus.com](https://brand.jobnimbus.com/)
 
 **Narrative arc (90 seconds):**
 1. **The problem** (10s) — "A roofing contractor spends 30+ minutes on every lead before they can even quote — measuring, photographing, writing it up. By the time the estimate goes out, the homeowner called someone else."
-2. **The solve** (40s) — Type/speak an address. Pipeline runs live: geocode → satellite + Solar → measurement → AI vision → polygon → line items → JN push. Timer running. Lands in 6–8 seconds.
-3. **The proof** (20s) — Alt-tab to JN sandbox, refresh, contact + job are there with measurements, polygon image, AI condition notes, and full line-item table in the description. Contractor applies their pricing → quote out the door.
-4. **The frame** (20s) — "This is what AssistAI looks like when it ships. Address in, fully-prepped lead in JobNimbus — contractor quotes it with their own pricing in seconds instead of hours."
+2. **The solve** (40s) — Type/speak an address. Pipeline runs live: geocode → satellite + Solar → measurement → AI vision → polygon → line items → tiered estimate → JN push. Timer running. Lands in ~15 seconds.
+3. **The proof** (20s) — Alt-tab to JN sandbox, refresh, contact + job are there with measurements, polygon image, AI condition notes, and full line-item table in the description. Three-tier estimate (Good / Better / Best) ready to send to the homeowner.
+4. **The frame** (20s) — "This is what AssistAI looks like when it ships. Address in, fully-prepped lead and quote-ready estimate in JobNimbus, in seconds."
 
 **Key audience decisions:**
-- **Visible pipeline steps with cycling phrases** — not a spinner. Product people see the "how"; tech leads see it's real.
-- **No fake pricing** — deliberately doesn't generate a price. Tells contractors the tool is honest about what it knows.
-- **Roof outline overlaid on the satellite** — single biggest confidence visual. Pixel-accurate, sourced from Google Solar (same data behind the sqft).
-- **Timer front and center** — 6–8s vs 30 minutes needs no explanation.
+- **Portal-spoof framing** — JN top-nav with Roofing Estimator as an active item, page header with Beta badge. Frames the whole demo as "this is a JobNimbus feature" before judges read a word.
+- **Live imagery preview during the wait** — satellite + street view reveal as soon as fetched, scan animation across the satellite during the vision step. ~15s wait reads as motion, not dead air.
+- **Tiered estimate using "configured rates" framing** — three packages (Good / Better / Best) with confident totals. The portal-spoof reframe lets us present these as the contractor's own configured rates, not a generic public quote.
+- **Roof outline overlaid on the satellite** — single biggest confidence visual. Pixel-accurate, sourced from Google Solar.
+- **Timer front and center** — ~15s vs 30 minutes needs no explanation.
 - **Two image views (street + satellite)** — homeowner recognition + contractor verification in one row.
 
 **Presentation assets:**
@@ -305,7 +328,9 @@ Top 5 advance to live finals. Five criteria:
 4. **Craft** — code quality, novel use of AI, engineering judgment.
 5. **Demo** — how you bring it to life Saturday. Creativity. Wow factor.
 
-**Gap to address:** the "Product" criterion explicitly asks if we bridged into a *usable estimate*. We deliver measurements + line items + AI inspection but skip pricing by design. Worth considering: a contractor-facing PDF report (no pricing, but a deliverable they can hand off) or a simple tiered estimate placeholder to check the "estimate" box without overclaiming.
+**Product criterion now covered** — tiered estimate (Good / Better / Best) with industry-anchored rates renders below the line items, framed as "Using your configured rates" via the portal spoof. Pricing service in `server/services/pricing.js` cites every constant inline so the AI scoring agent can verify methodology.
+
+**Possible bonus:** PDF deliverable for the homeowner (branded report = measurements + AI inspection + tiered estimate). Doubles as the per-property output artifact for the `examples/` folder.
 
 ---
 
@@ -346,14 +371,20 @@ Top 5 advance to live finals. Five criteria:
 ## Verification / Demo Checklist
 
 - [ ] Address autocomplete fires within ~250ms
-- [ ] Pipeline completes in 6–8 seconds end-to-end
+- [ ] Pipeline completes in ~15 seconds end-to-end
+- [ ] PortalNav renders with Roofing Estimator as the active item (PDF icon, blue underline)
+- [ ] PageHeader renders `← Roofing Estimator [Beta]` with Timer in the actions slot
+- [ ] PipelineLoader during run: step tracker → status message → live imagery preview with scan animation
 - [ ] Roof outline traces the correct house (centroid-closest works)
 - [ ] Patios excluded from sqft + outline (or fallback flag shown)
 - [ ] 4 stat tiles render with sqft + squares + pitch + material + age
 - [ ] Line Items render in 2-card layout (perimeter side / interior side)
+- [ ] **Pricing Estimate renders as a 3-card grid** (Good / Better / Best) with the Architectural tier highlighted as Most Selected
 - [ ] AI Analysis renders in 2-card layout (material & condition / features & obstacles)
 - [ ] Street View renders alongside satellite at 50/50
-- [ ] JN contact + job created, visible in JN UI within ~10 seconds *(needs API key)*
+- [ ] Clear (×) on the address input fully resets to the empty state
+- [ ] Footer shows "BUILT BY Angel Herrera" / "JN HACKATHON · 2026"
+- [ ] JN contact + job created, visible in JN UI within ~10 seconds *(needs API key — stretch)*
 - [ ] Public GitHub repo — no secrets, clear README, AI bot can navigate
-- [ ] `examples/` folder has 3–5 captured outputs
+- [ ] `examples/` folder has captured outputs for the 5 test properties
 - [ ] Benchmark sqft submitted for the 5 test properties before Saturday 1:30 PM
