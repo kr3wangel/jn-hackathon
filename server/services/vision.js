@@ -163,51 +163,6 @@ For obstaclesFromAbove: count distinct features on the centered house. Chimneys 
 For visibleDamage, list each issue: { "type": "discoloration" | "missing sections" | "patching" | "ponding" | "debris accumulation", "description": "brief description" }`;
 }
 
-function buildPolygonPrompt(context) {
-  const ctx = context || {};
-  const sqft = ctx.totalAreaSqft ? `${ctx.totalAreaSqft.toLocaleString()} sqft` : 'unknown';
-  const facets = ctx.facetCount ?? 'unknown';
-
-  return `You are looking at a 640×640 top-down satellite image of a residential property. The image is centered on a single specific house — the one whose roof footprint is at the geometric center of the image. Your job is to trace the EXACT outer perimeter of that house's roof.
-
-Ground truth from Google Solar API for this house:
-- Total roof area: ${sqft}
-- Number of distinct roof facets: ${facets}
-
-Your traced polygon must be consistent with those numbers. If you trace a small rectangle when the area is 4,000 sqft, you are wrong. If you trace a simple shape when there are 11 facets, you are wrong.
-
-STEP 1 — Internally describe the centered house in plain words. Identify its shape (rectangle, L, T, U, complex), where the main mass is, where any wings, garage, or bumpouts sit, and what the roof orientation looks like. Do not output this — it's your private reasoning.
-
-STEP 2 — Identify every outside corner of the roof perimeter. For an L-shape there are 6 corners. For a complex roof with bumpouts there can be 14–20+. Every corner you list must correspond to a real change in direction along the visible roof edge.
-
-STEP 3 — Output the polygon as JSON.
-
-Rules for the output:
-- Coordinates are normalized 0–1 relative to image dimensions. (0,0) is top-left. (1,1) is bottom-right.
-- Use 3 decimals of precision (e.g. 0.423, not 0.42). Two decimals is too coarse to trace accurately.
-- Real roofs have edges at all angles, NOT just horizontal/vertical. If an eave runs at 30°, your edge between two corners must run at 30°. Do NOT default to a Manhattan-style step pattern.
-- Order the points by walking the perimeter clockwise.
-- Do not repeat the first point at the end — closure is implicit.
-- INCLUDE attached garages, additions, and covered porches that share a roof with the main house.
-- EXCLUDE neighboring houses, driveways, detached sheds, pools, fences, sidewalks, and trees.
-
-Return ONLY valid JSON in this exact format:
-{
-  "polygon": [
-    { "x": 0.423, "y": 0.318 },
-    { "x": 0.551, "y": 0.318 }
-  ],
-  "confidence": "high" | "medium" | "low"
-}
-
-Confidence guide:
-- "high" — every corner is visible, your trace matches the ground-truth area and facet count, and edges follow real roof angles.
-- "medium" — some corners obscured by trees or shadow; trace is approximate.
-- "low" — heavy occlusion, cannot identify the centered house, or trace conflicts with ground-truth area.
-
-If you cannot identify the centered house, return { "polygon": [], "confidence": "low" }.`;
-}
-
 export async function analyzeProperty(satelliteUrl, streetViewUrl, roofContext, modelOverride) {
   const satellitePrompt = buildSatellitePrompt(roofContext);
   const [streetViewAnalysis, satelliteAnalysis, propertyTypeResult] = await Promise.all([
