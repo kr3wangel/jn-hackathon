@@ -169,6 +169,11 @@ export default function App() {
                 polygon={roofOutline?.polygon}
                 sqft={roofData?.totalAreaSqft}
                 confidence={roofOutline?.confidence}
+                patioSqft={roofData?.patioSqft}
+                patioFallback={
+                  (roofData?.patioSqft || 0) > 0 &&
+                  roofOutline?.patioTrimApplied === false
+                }
               />
             )}
 

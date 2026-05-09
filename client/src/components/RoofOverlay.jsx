@@ -1,7 +1,7 @@
 import React from 'react';
 import './RoofOverlay.css';
 
-export default function RoofOverlay({ imageUrl, polygon, sqft, confidence }) {
+export default function RoofOverlay({ imageUrl, polygon, sqft, confidence, patioSqft, patioFallback }) {
   const hasPolygon = Array.isArray(polygon) && polygon.length >= 3;
   const points = hasPolygon ? polygon.map((p) => `${p.x},${p.y}`).join(' ') : '';
   const centroid = hasPolygon ? computeCentroid(polygon) : null;
@@ -39,6 +39,16 @@ export default function RoofOverlay({ imageUrl, polygon, sqft, confidence }) {
         <p className="roof-overlay-disclaimer">
           AI outline · {confidence} confidence · verify on-site
         </p>
+      )}
+      {patioFallback && patioSqft > 0 && (
+        <div className="roof-overlay-patio-note">
+          <span className="patio-note-icon">⚐</span>
+          <span>
+            Outline includes attached patio cover / carport, but the
+            <strong> {patioSqft.toLocaleString()} sqft</strong> low-pitch portion
+            is excluded from the main-roof measurement.
+          </span>
+        </div>
       )}
     </div>
   );

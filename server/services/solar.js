@@ -1,3 +1,5 @@
+import { detectPatioCovers } from './patioDetection.js';
+
 const SOLAR_API_BASE = 'https://solar.googleapis.com/v1';
 
 const SQ_METERS_TO_SQ_FEET = 10.764;
@@ -42,25 +44,42 @@ function parseRoofData(data) {
     };
   });
 
-  const avgPitchDeg = segments.length > 0
-    ? segments.reduce((sum, s) => sum + s.pitchDegrees, 0) / segments.length
+  // Detect attached non-roof structures (patio covers, carports, awnings) by
+  // pitch outliers. See server/services/patioDetection.js for full reasoning
+  // and known limitations. We exclude these from the main-roof sqft because
+  // a roofing contractor is not quoting them as part of a re-roof.
+  const patioInfo = detectPatioCovers(segments);
+  const patioIndexes = new Set(patioInfo.patioSegments.map((p) => p.index));
+  const mainRoofSegments = segments.filter((s) => !patioIndexes.has(s.index));
+  const mainRoofAreaSqft = totalAreaSqft - patioInfo.totalPatioSqft;
+
+  // Compute average pitch from main-roof segments only — including a low-pitch
+  // patio cover would skew the average downward and mis-classify the roof.
+  const pitchSource = mainRoofSegments.length > 0 ? mainRoofSegments : segments;
+  const avgPitchDeg = pitchSource.length > 0
+    ? pitchSource.reduce((sum, s) => sum + s.pitchDegrees, 0) / pitchSource.length
     : 0;
 
   // Solar API areaMeters2 is already the 3D roof plane area (accounts for pitch).
   // Only apply waste factor for material ordering — do NOT re-apply pitch multiplier.
   const wasteFactor = 1.10;
-  const materialSqft = totalAreaSqft * wasteFactor;
+  const materialSqft = mainRoofAreaSqft * wasteFactor;
   const roofingSquares = materialSqft / 100;
 
   return {
-    totalAreaSqft: Math.round(totalAreaSqft),
+    totalAreaSqft: Math.round(mainRoofAreaSqft),
+    fullStructureSqft: Math.round(totalAreaSqft), // includes patios — kept for transparency
+    patioSqft: patioInfo.totalPatioSqft,
+    patioInfo, // segments, confidence, reason
     materialSqft: Math.round(materialSqft),
     roofingSquares: Math.round(roofingSquares * 10) / 10,
-    facetCount: segments.length,
+    facetCount: mainRoofSegments.length,
+    fullStructureFacetCount: segments.length,
     avgPitchDegrees: Math.round(avgPitchDeg * 10) / 10,
     avgPitchRatio: degreesToRiseRun(avgPitchDeg),
     wasteFactor,
-    segments,
+    segments: mainRoofSegments, // downstream measurement uses main-roof segments only
+    allSegments: segments,       // includes patios — kept for diagnostic display
     imageryDate: data.imageryDate,
     imageryQuality: data.imageryQuality,
     postalCode: data.postalCode,

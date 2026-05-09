@@ -39,14 +39,33 @@ pipelineRouter.post('/pipeline', async (req, res) => {
     // Step 1: Imagery + Solar
     send('step', { step: 'imagery', status: 'loading', message: 'Fetching property data...' });
 
-    const [roofData, imagery, roofOutline] = await Promise.all([
+    // Solar (buildingInsights) + static map imagery in parallel — both fast.
+    const [roofData, imagery] = await Promise.all([
       fetchBuildingInsights(lat, lng),
       fetchImagery(lat, lng),
-      fetchRoofPolygon(lat, lng).catch((e) => {
-        console.warn('Roof mask fetch failed:', e.message);
-        return null;
-      }),
     ]);
+
+    // Now fetch the roof outline polygon, passing patio segment bounding
+    // boxes so they get masked out of the GeoTIFF before contour extraction.
+    // This is serialized after solar (rather than parallel) because we need
+    // the patio detection result first. Adds ~500ms of latency vs full
+    // parallelism, which is worth it to get a correct main-roof-only outline.
+    const patioBoundingBoxes = (roofData.patioInfo?.patioSegments || [])
+      .map((s) => s.boundingBox)
+      .filter(Boolean);
+    // What fraction of the full structure we expect to keep after patio trim.
+    // roofMask uses this to detect Solar bbox overlap (over-trim) and fall
+    // back to the un-trimmed polygon if the erasure exceeds the budget.
+    const expectedKeepFraction = roofData.fullStructureSqft > 0
+      ? (roofData.fullStructureSqft - roofData.patioSqft) / roofData.fullStructureSqft
+      : 1;
+    const roofOutline = await fetchRoofPolygon(lat, lng, {
+      excludeBoundingBoxes: patioBoundingBoxes,
+      expectedKeepFraction,
+    }).catch((e) => {
+      console.warn('Roof mask fetch failed:', e.message);
+      return null;
+    });
 
     send('step', { step: 'imagery', status: 'done', data: { ...imagery, roofData, roofOutline } });
 
