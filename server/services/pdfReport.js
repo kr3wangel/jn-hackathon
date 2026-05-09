@@ -36,7 +36,8 @@ export async function generateReport({ address, roofData, visionData, lineItems,
 
   // ---- Header (full-bleed) + address block ----
   drawHeader(doc, address);
-  let cursorY = drawAddressBlock(doc, address, 64, estimateId);
+  const propertyType = visionData?.propertyType || 'residential';
+  let cursorY = drawAddressBlock(doc, address, 64, estimateId, propertyType);
   cursorY += 10;
 
   // ---- Property images (side-by-side, scale-to-cover for uniform sizing) ----
@@ -82,6 +83,14 @@ export async function generateReport({ address, roofData, visionData, lineItems,
       drawPricingCard(doc, tier, x, cursorY, tierW);
     });
     cursorY += 186;
+  } else if (visionData?.commercialScale === 'large') {
+    cursorY = drawSectionTitle(doc, 'Estimate', cursorY);
+    doc.fontSize(10).fillColor('#CC3333')
+      .text('Custom Quote Required', MARGIN, cursorY, { width: CONTENT_W });
+    cursorY += 14;
+    doc.fontSize(8).fillColor(JN_NIGHT)
+      .text('This commercial property requires an on-site inspection for accurate pricing.', MARGIN, cursorY, { width: CONTENT_W });
+    cursorY += 24;
   }
 
   // ---- Line Items (left) + AI Analysis (right) side-by-side ----
@@ -114,23 +123,19 @@ export async function generateReport({ address, roofData, visionData, lineItems,
     const items = [];
     if (visionData.material) items.push(['Material', visionData.material]);
     if (visionData.condition) items.push(['Condition', visionData.condition]);
-    if (visionData.estimatedAge) items.push(['Est. Age', visionData.estimatedAge]);
+    if (visionData.streetView?.estimatedAge) items.push(['Est. Age', visionData.streetView.estimatedAge]);
     if (visionData.stories) items.push(['Stories', `${visionData.stories}`]);
-    if (visionData.roofShape) items.push(['Roof Shape', visionData.roofShape]);
+    if (visionData.satellite?.roofShape) items.push(['Roof Shape', visionData.satellite.roofShape]);
+    if (visionData.satellite?.treeOverhang) items.push(['Tree Overhang', visionData.satellite.treeOverhang]);
     rightY = drawCompactRows(doc, items, rightX, rightY, colW);
 
-    const damage = visionData.streetView?.damage || [];
-    if (damage.length > 0) {
-      rightY += 4;
-      doc.fontSize(7).fillColor('#CC3333').text('Damage:', rightX, rightY, { lineBreak: false });
-      rightY += 10;
-      doc.fontSize(7.5).fillColor(JN_NIGHT);
-      for (const d of damage.slice(0, 3)) {
-        const txt = `• ${d.type}${d.severity ? ` (${d.severity})` : ''}`;
-        doc.text(txt, rightX, rightY, { width: colW, lineBreak: false });
-        rightY += 10;
-      }
+    const condNotes = visionData.streetView?.conditionNotes;
+    if (condNotes) {
+      rightY += 2;
+      doc.fontSize(7).fillColor(JN_SLATE).text(condNotes, rightX, rightY, { width: colW, lineBreak: true });
+      rightY += doc.heightOfString(condNotes, { width: colW }) + 4;
     }
+
   }
 
   drawFooter(doc);
@@ -216,17 +221,35 @@ function drawFooter(doc) {
     });
 }
 
-function drawAddressBlock(doc, address, y, estimateId) {
-  // Section title row: "Property" left, "ESTIMATE #XXXX" right
+function drawAddressBlock(doc, address, y, estimateId, propertyType) {
+  // Section title row: "Property" left, property type pill + estimate ID right
   doc.font('Helvetica').fontSize(10.5).fillColor(JN_DEEP_BLUE)
     .text('Property', MARGIN, y, { lineBreak: false });
 
+  // Property type pill
+  const typeLabel = (propertyType === 'commercial' ? 'COMMERCIAL' : 'RESIDENTIAL');
+  const badgeColor = propertyType === 'commercial' ? '#FF704C' : JN_BLUE;
+  doc.font('Helvetica-Bold').fontSize(6.5);
+  const badgeTextW = doc.widthOfString(typeLabel);
+  const badgeW = badgeTextW + 14;
+  let badgeX = MARGIN + CONTENT_W - badgeW;
+
   if (estimateId) {
+    doc.font('Helvetica-Bold').fontSize(7);
+    const estW = doc.widthOfString(`EST-${estimateId}`);
+    badgeX = MARGIN + CONTENT_W - estW - 8 - badgeW;
+
     doc.font('Helvetica-Bold').fontSize(7).fillColor(JN_SLATE)
       .text(`EST-${estimateId}`, MARGIN, y + 3, {
         width: CONTENT_W, align: 'right', lineBreak: false,
       });
   }
+
+  doc.save();
+  doc.roundedRect(badgeX, y - 1, badgeW, 14, 7).fill(badgeColor);
+  doc.font('Helvetica-Bold').fontSize(6.5).fillColor(WHITE)
+    .text(typeLabel, badgeX, y + 2, { width: badgeW, align: 'center', lineBreak: false });
+  doc.restore();
 
   doc.moveTo(MARGIN, y + 14).lineTo(MARGIN + CONTENT_W, y + 14)
     .strokeColor(BORDER).lineWidth(0.5).stroke();
@@ -254,8 +277,9 @@ function drawKeyValueGrid(doc, items, cols, y) {
   for (let i = 0; i < items.length; i++) {
     const [label, value] = items[i];
     const x = MARGIN + (i % cols) * colW;
-    doc.fontSize(6.5).fillColor(JN_SLATE).text(label.toUpperCase(), x, y, { width: colW, lineBreak: false });
-    doc.fontSize(13).fillColor(JN_NIGHT).text(value, x, y + 9, { width: colW, lineBreak: false });
+    const align = i === 0 ? 'left' : i === cols - 1 ? 'right' : 'center';
+    doc.fontSize(6.5).fillColor(JN_SLATE).text(label.toUpperCase(), x, y, { width: colW, align, lineBreak: false });
+    doc.fontSize(13).fillColor(JN_NIGHT).text(value, x, y + 9, { width: colW, align, lineBreak: false });
   }
   return y + 50;
 }
@@ -266,7 +290,7 @@ function drawCompactRows(doc, rows, x, y, w) {
     doc.fontSize(8).fillColor(JN_DEEP_BLUE).text(value, x + w * 0.55, y, {
       width: w * 0.45, align: 'right', lineBreak: false,
     });
-    y += 12;
+    y += 15;
   }
   return y;
 }
