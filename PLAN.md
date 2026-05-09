@@ -21,10 +21,14 @@ Build an AI pipeline that takes a property address and produces a fully-prepped 
 | 3 — Line-item report (linear feet) | ✅ Done |
 | 4 — Patio / non-roof structure detection | ✅ Done |
 | 5 — UX polish | ✅ Done |
-| 5.5 — Portal-spoof reframe + pricing | ✅ Done (last session) |
-| 6 — JobNimbus integration | ⏸ Skips gracefully without `JN_API_KEY`; needs real key + verify against sandbox |
+| 5.5 — Portal-spoof reframe + pricing | ✅ Done |
+| 5.7 — PDF report (1-page, branded, EST-id) | ✅ Done (this session) |
+| 5.8 — Graceful failure (404 empty state, commercial short-circuit) | ✅ Done (this session) |
+| 5.9 — Loader refactor + vision-prompt tuning + benchmark harness | ✅ Done (this session) |
+| 6 — JobNimbus integration | ✅ Wired (parallelized with measurements/pricing); needs sandbox verification |
 | 7 — Demo prep + reliability test | ⏳ Pending |
 | 8 — Submission (public repo + examples + sqft form) | 🔥 **DEADLINE TODAY 1:30 PM** |
+| 9 — Vercel deploy + repo organization | ⏳ Next (agent kicking off) |
 
 **Submission deadline:** Saturday May 9, 2026 at **1:30 PM** — submit total sqft for the 5 benchmark *test* addresses via the [submission form](https://docs.google.com/forms/d/e/1FAIpQLSfTL58Z0rVBgfx9l81lV7GpryhF7kDEuFKCgNG5i-m1RWDyUg/viewform). Also need a public GitHub repo with output artifacts per test property.
 
@@ -54,21 +58,23 @@ Address input (server-side Google Places Autocomplete)
 
 ### Backend (`server/`)
 
-- **`routes/pipeline.js`** — orchestrates the SSE pipeline. Steps: imagery → vision → JobNimbus. Geometric line items computed before vision (provides scale anchor for vision prompt); final line items merged with vision results.
+- **`routes/pipeline.js`** — orchestrates the SSE pipeline. Step events: imagery → vision (measurements + pricing run synchronously after vision; the loader auto-advances those cosmetically). JobNimbus push runs in parallel with measurements + pricing so it doesn't add wall-clock time. Mints a stable `estimateId` (8-char hex) on the `done` event so the UI chip and PDF stamp/filename match. Detects "large commercial" properties from the vision pass and short-circuits — emits a `shortCircuit: 'commercial-large'` flag so the client renders a "Custom Quote Required" banner instead of line items + pricing. Emits `code` field on the error event so the client can branch on `PROPERTY_NOT_FOUND` (Solar 404).
+- **`routes/report.js`** — `/api/report` POST endpoint that takes the pipeline's results + base64-encoded imagery and returns a PDF buffer with `Content-Disposition: attachment; filename="roof-report-<EST-ID>.pdf"`. Falls back to a fresh estimate ID if the pipeline didn't supply one.
 - **`routes/autocomplete.js`** — proxies Google Places Autocomplete server-side (Google JS API was blocked on the key).
+- **`services/pdfReport.js`** — single-page PDF generator built on PDFKit. `margin: 0` + explicit `addPage` to prevent auto-pagination. Layout: full-bleed JN deep-blue header (brand + Roofing Estimator + BETA pill + date, all baseline-aligned via real font ascender values) → "Property" section title with EST-XXXXXXXX stamp → side-by-side imagery (`drawImageCover` clips + scales like CSS object-fit:cover so both slots fill uniformly) → 4-col measurements grid → 3-card pricing tiers (with "MOST SELECTED" badge + vector checkmarks) → side-by-side Line Items + AI Analysis → slim tinted footer (brand left, © year right).
 - **`services/geocode.js`** — Google Geocoding API for address → lat/lng.
 - **`services/imagery.js`** — Static Maps satellite (zoom 20, 640×640) + Street View URLs.
-- **`services/solar.js`** — Google Solar `buildingInsights:findClosest`. Returns total area, per-segment pitch/azimuth/bbox, facet count, dominant pitch (computed from main-roof segments only). Subtracts detected patios from sqft.
+- **`services/solar.js`** — Google Solar `buildingInsights:findClosest`. Returns total area, per-segment pitch/azimuth/bbox, facet count, dominant pitch (computed from main-roof segments only). Subtracts detected patios from sqft. **404 throws a typed error with `code: 'PROPERTY_NOT_FOUND'`** so the UI can render a friendly empty state instead of the raw API message.
 - **`services/patioDetection.js`** — heuristic detection of attached non-roof structures (patio covers, carports, awnings) via pitch outliers in Solar segments. Heavily commented with reasoning, alternatives audited (Microsoft Building Footprints / OSM / county GIS), and three known failure modes. Constants are roofing-industry rules of thumb, not example-set-tuned.
 - **`services/roofMask.js`** — fetches Solar `dataLayers:get` GeoTIFF, decodes with `geotiff` lib, runs `d3-contour` to extract roof outline, picks the contour whose centroid is closest to the image center (not the largest — important for getting the right house), reprojects from UTM→WGS84 via `proj4`, projects to normalized 0-1 coords matching the static map, simplifies with Douglas-Peucker (1.5 px tolerance) for visual rendering, keeps the unsimplified ring for measurement. Patio bbox masking happens before contour extraction; sanity-check falls back to un-trimmed polygon if over-trim detected.
 - **`services/roofMeasurements.js`** — eave/rake classification via per-edge bearing vs nearest Solar segment azimuth; haversine for edge length; facet-anchored calibration for vision-estimated ridges/hips/valleys (FT_PER_FACET = 27, threshold 0.9). Industry rules-of-thumb for flashing per chimney/skylight/dormer. **Always returns a populated object** even when polygon is missing — geometric fields fall back to null, vision-based items still populate.
-- **`services/vision.js`** — three Claude calls in parallel: street-view inspection (material/condition/age/damage/obstacles), satellite analysis (shape/material/damage/obstacles + line enumeration with notes), polygon detection prompt (deprecated — replaced by Solar mask). Satellite prompt includes ground-truth scale anchors (perimeter, facet count, area, pitch) and roof-shape-specific heuristic ranges. `max_tokens: 3072` for satellite to handle full enumeration.
+- **`services/vision.js`** — three Claude calls in parallel: street-view inspection (Sonnet, material/condition/age/damage/obstacles), satellite analysis (Sonnet, shape/material/damage/obstacles + line enumeration with notes), and a property-type classifier (Haiku — cheap, fast, returns `{ propertyType, commercialScale }`). Satellite prompt includes ground-truth scale anchors (perimeter, facet count, area, pitch), tightened ridge/hip/valley definitions with proportion sanity checks (ridges ≤ 25% of interior total on hip roofs), and length-scaling guidance for larger footprints. `max_tokens: 3072` for satellite. `analyzeProperty(satelliteUrl, streetViewUrl, ctx, modelOverride?)` accepts a model override so the benchmark harness can sweep models without code changes.
 - **`services/jobnimbus.js`** — REST client: POST contact → POST job (no estimate object — pricing is part of the job description body, not a JN Estimate record). Job description embeds measurements + line items + AI analysis.
 - **`services/pricing.js`** — tiered package generator (Good / Better / Best). Per-square + per-linear-foot + flat-fee defaults applied to measured quantities. Sources cited inline (HomeAdvisor 2024, Roofing Calculator, IBHS Class 4 premium guidance). Architectural tier flagged `recommended: true` so the UI can highlight it ("Most Selected" badge).
 
 ### Frontend (`client/src/`)
 
-- **`App.jsx`** — SSE consumer with AbortController, buffer flush on stream close, and done-event safety net (so the UI never hangs in `running`). `handleReset` (used by the address-input × button and the page-header back arrow) clears all pipeline state and returns to the empty-state. Results render as a single batched reveal once pipeline is `done`.
+- **`App.jsx`** — SSE consumer with AbortController, buffer flush on stream close, and done-event safety net (so the UI never hangs in `running`). The SSE parser hoists `pendingEvent` outside `processLines` so events that span multiple TCP chunks aren't dropped (the `done` event ran ~70-100KB and was being silently lost on slower connections). `handleDownloadPdf` base64-encodes the imagery and composites the orange roof outline + sqft label onto the satellite via canvas before sending to `/api/report` — the Maps API key is referrer-restricted to the browser, so server-side fetch returned 403. Branches the results UI on three states: `PROPERTY_NOT_FOUND` (centered empty-state card with Try-another-address), `shortCircuit === 'commercial-large'` (banner + measurements only, no line items / pricing), normal (full results). `handleReset` clears all pipeline state. Results render as a single batched reveal once pipeline is `done`.
 - **`components/PortalNav.jsx`** — spoofed JobNimbus top-nav. JN wordmark + horizontal icon-on-top/label-below items (Home, Jobs, Calendar, Insights, Engage, Payments, **Roofing Estimator** active with PDF doc icon and blue underline). Right cluster: Create + button, search input, AH avatar (green circle). Inactive items are static stubs (`tabIndex=-1`, `cursor: default`) — only the estimator is functional. Mobile collapses to JN logo + active item pill + Create.
 - **`components/PageHeader.jsx`** — JN-style "← Page Title [Beta]" strip below the nav. Back arrow calls `handleReset`. The Beta badge mirrors JN's actual "Smart Estimate Setup [Beta]" treatment. Renders the Timer in its actions slot.
 - **`components/AddressInput.jsx`** — debounced server-side autocomplete with dropdown, keyboard nav, and a clear (×) button that calls the parent's `onReset` to fully clear pipeline state. "Submitted-once" guard so the dropdown doesn't reappear after pipeline runs.
@@ -131,25 +137,37 @@ Address input (server-side Google Places Autocomplete)
 
 ## Pending Work
 
-### 🔥 Submission day — Saturday May 9, 1:30 PM (≤4.5 hrs from session start)
+### 🔥 Submission — Saturday May 9, 1:30 PM
 
 Deadline-critical, in priority order:
 
-1. **Run the pipeline on the 5 test properties** and record total sqft for each:
+1. **Run the pipeline on the 5 test properties** (UI auto-saves nothing — capture from console / network or use a script):
    1. 3561 E 102nd Ct, Thornton, CO 80229
    2. 1612 S Canton Ave, Springfield, MO 65802
    3. 6310 Laguna Bay Court, Houston, TX 77041
    4. 3820 E Rosebrier St, Springfield, MO 65809
    5. 1261 20th Street, Newport News, VA 23607
-2. **Make the GitHub repo public**:
-   - Verify `.env` is gitignored, no secrets in commits (already clean per git log)
-   - Top-level `README.md`: project overview, architecture diagram, setup instructions, how to run, screenshot
-3. **Capture output artifacts for the test properties** (the form asks for these and the AI scoring agent will look for them):
-   - One folder per address (slug name) under `examples/` containing `satellite.jpg`, `streetview.jpg`, `output.json` (full pipeline output)
-   - Optional: PDF deliverable for each (if the PDF builder ships in time)
+2. **Capture output artifacts** under `examples/<slug>/`:
+   - `satellite.jpg`, `streetview.jpg`, `output.json` (full pipeline `done` payload)
+   - `report.pdf` (download via the UI button — adds the per-property deliverable that the rubric asks about)
    - Top-level `examples/README.md` with a table: address, sqft, pipeline time
+3. **Public GitHub repo**:
+   - Verify `.env` is gitignored, no secrets in history
+   - Top-level `README.md`: project overview, architecture diagram, setup, how to run, screenshot
+   - The repo-organization agent kicking off after this should handle structural cleanup before the README pass
 4. **Fill out the Google Form** (~5 min): team name + members, ≤200-word approach summary, phone number, sqft for each test property, optional demo video / hosted link.
    - Form: https://docs.google.com/forms/d/e/1FAIpQLSfTL58Z0rVBgfx9l81lV7GpryhF7kDEuFKCgNG5i-m1RWDyUg/viewform
+
+### Vercel deploy + repo organization (next, agent-owned)
+
+The agent picking this up should:
+- Restructure the repo for clarity (suggested: monorepo with `apps/web` + `apps/api`, or flatter `client/` + `api/` for Vercel serverless). Confirm before destructive moves.
+- Migrate the Express API to Vercel — likely either Vercel serverless functions (each route → `api/*.js`) or a single Express handler under `api/index.js`. SSE works on Vercel but has a 60s execution limit on Pro, 10s on Hobby — current pipeline lands in ~10–15s so this is tight on Hobby.
+- The PDF route returns a buffer; check Vercel's response-size limits (~4.5MB). Current PDFs are <300KB so fine.
+- Static assets (JN logo, favicon) just deploy with the Vite build.
+- `.env` → Vercel env vars: `ANTHROPIC_API_KEY`, `GOOGLE_MAPS_API_KEY`, `JN_API_KEY`. Verify the Google Maps key's referrer restrictions allow the deployed domain (currently locked to localhost during dev).
+- Keep the `scripts/` benchmark harness as a local-only tool — don't deploy it.
+- Don't break the local dev workflow (`launch.json` server + client); maintainers still need fast iteration.
 
 ### After submission: finalist round (2:00 PM if selected)
 
@@ -157,10 +175,11 @@ Deadline-critical, in priority order:
 - Pre-record a fallback video of a successful run before 2:00 PM (insurance against demo-day API hiccups).
 - Rehearse 90-second demo script.
 
-### Stretch (only if submission tasks are done)
+### Stretch
 
-- **PDF deliverable** — branded report with measurements + AI inspection + tiered estimate. High-impact for the demo because contractors actually hand PDFs to homeowners; doubles as the per-property output artifact for `examples/`.
-- **JobNimbus integration** (Phase 6) — get a JN trial account + generate API key, drop into `.env` as `JN_API_KEY`. Test end-to-end: address → contact + job appears in the JN sandbox UI. The "mic-drop moment" of the demo: alt-tab to JN, refresh, the job is there. *Skips gracefully without the key, so this only matters if we make finalist round.*
+- **JobNimbus sandbox verification** — code path is wired and skips gracefully without `JN_API_KEY`; need a JN trial account + key + verify a contact + job actually land in the sandbox UI. The mic-drop demo moment.
+- **Voice intake** — Web Speech API for "speak the address" demo flair.
+- **More test addresses for benchmark.js** — current set is 5 calibration properties; expanding to 15–20 would tighten the accuracy story.
 
 ---
 
