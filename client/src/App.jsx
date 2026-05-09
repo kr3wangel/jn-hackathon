@@ -168,31 +168,30 @@ export default function App() {
         {(pipelineState === 'done' || pipelineState === 'error') && (
           <div className="results">
             {imagery && (
-              <RoofOverlay
-                imageUrl={imagery.satellite}
-                polygon={roofOutline?.polygon}
-                sqft={roofData?.totalAreaSqft}
-                confidence={roofOutline?.confidence}
-                patioSqft={roofData?.patioSqft}
-                patioFallback={
-                  (roofData?.patioSqft || 0) > 0 &&
-                  roofOutline?.patioTrimApplied === false
-                }
-              />
+              <div className="imagery-row">
+                <div className="streetview-card">
+                  <span className="card-label">STREET VIEW</span>
+                  <div className="streetview-canvas">
+                    <img src={imagery.streetView} alt="Street view" />
+                  </div>
+                </div>
+                <RoofOverlay
+                  imageUrl={imagery.satellite}
+                  polygon={roofOutline?.polygon}
+                  sqft={roofData?.totalAreaSqft}
+                  confidence={roofOutline?.confidence}
+                  patioSqft={roofData?.patioSqft}
+                  patioFallback={
+                    (roofData?.patioSqft || 0) > 0 &&
+                    roofOutline?.patioTrimApplied === false
+                  }
+                />
+              </div>
             )}
 
             {roofData && <RoofStats data={roofData} />}
 
             {lineItems && <LineItems data={lineItems} />}
-
-            {imagery && (
-              <div className="imagery-grid single">
-                <div className="imagery-card">
-                  <span className="card-label">STREET VIEW</span>
-                  <img src={imagery.streetView} alt="Street view" />
-                </div>
-              </div>
-            )}
 
             {visionData && <VisionAnalysis data={visionData} />}
 

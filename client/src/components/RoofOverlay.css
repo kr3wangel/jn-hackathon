@@ -21,7 +21,6 @@
   width: 100%;
   aspect-ratio: 16 / 9;
   background: var(--jn-cloud);
-  margin-bottom: 16px;
 }
 
 .roof-overlay-canvas img {
@@ -122,7 +121,7 @@
   display: flex;
   align-items: flex-start;
   gap: 10px;
-  margin: 0 16px 16px;
+  margin: 16px;
   padding: 12px 16px;
   background: #fef3c7;
   border-left: 3px solid #f59e0b;
