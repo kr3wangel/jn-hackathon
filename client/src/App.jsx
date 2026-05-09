@@ -24,9 +24,11 @@ export default function App() {
   const [visionData, setVisionData] = useState(null);
   const [jnResult, setJnResult] = useState(null);
   const [address, setAddress] = useState('');
+  const [estimateId, setEstimateId] = useState(null);
   const [error, setError] = useState(null);
   const abortRef = useRef(null);
   const stateRef = useRef('idle');
+  const autoAdvanceRef = useRef([]);
 
   function handleSubmit(place) {
     // Cancel any in-flight pipeline so a new submission doesn't tangle with it.
@@ -45,6 +47,7 @@ export default function App() {
     setPricing(null);
     setVisionData(null);
     setJnResult(null);
+    setEstimateId(null);
     setError(null);
 
     const body = JSON.stringify({
@@ -118,6 +121,8 @@ export default function App() {
 
   function handleReset() {
     if (abortRef.current) abortRef.current.abort();
+    autoAdvanceRef.current.forEach(clearTimeout);
+    autoAdvanceRef.current = [];
     setAddress('');
     setPipelineState('idle');
     stateRef.current = 'idle';
@@ -129,6 +134,7 @@ export default function App() {
     setPricing(null);
     setVisionData(null);
     setJnResult(null);
+    setEstimateId(null);
     setError(null);
   }
 
@@ -229,7 +235,7 @@ export default function App() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          address, roofData, visionData, lineItems, pricing,
+          address, estimateId, roofData, visionData, lineItems, pricing,
           imageryBase64: { satellite: satB64, streetView: svB64 },
         }),
       });
@@ -260,7 +266,22 @@ export default function App() {
       if (data.step === 'jobnimbus' && data.data) {
         setJnResult(data.data);
       }
+      // Auto-advance through cosmetic steps after vision completes
+      if (data.step === 'vision' && data.status === 'done') {
+        autoAdvanceRef.current.forEach(clearTimeout);
+        autoAdvanceRef.current = [
+          setTimeout(() => {
+            setSteps((prev) => ({ ...prev, measurements: 'loading' }));
+          }, 300),
+          setTimeout(() => {
+            setSteps((prev) => ({ ...prev, measurements: 'done', pricing: 'loading' }));
+          }, 3000),
+        ];
+      }
     } else if (event === 'done') {
+      autoAdvanceRef.current.forEach(clearTimeout);
+      autoAdvanceRef.current = [];
+      setSteps((prev) => ({ ...prev, measurements: 'done', pricing: 'done' }));
       setPipelineState('done');
       stateRef.current = 'done';
       if (data.roofData) setRoofData(data.roofData);
@@ -269,6 +290,7 @@ export default function App() {
       if (data.pricing) setPricing(data.pricing);
       if (data.visionData) setVisionData(data.visionData);
       if (data.jobnimbus) setJnResult(data.jobnimbus);
+      if (data.estimateId) setEstimateId(data.estimateId);
     } else if (event === 'error') {
       setError(data.message);
       setPipelineState('error');
@@ -305,6 +327,12 @@ export default function App() {
 
         {(pipelineState === 'done' || pipelineState === 'error') && (
           <div className="results">
+            {estimateId && (
+              <div className="estimate-id-row">
+                <span className="estimate-id-label">Estimate</span>
+                <span className="estimate-id-value">EST-{estimateId}</span>
+              </div>
+            )}
             {imagery && (
               <div className="imagery-row">
                 <div className="streetview-card">

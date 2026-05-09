@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { randomUUID } from 'crypto';
 import { fetchImagery } from '../services/imagery.js';
 import { fetchBuildingInsights } from '../services/solar.js';
 import { fetchRoofPolygon } from '../services/roofMask.js';
@@ -97,8 +98,8 @@ pipelineRouter.post('/pipeline', async (req, res) => {
       send('step', { step: 'vision', status: 'done', data: { skipped: true, reason: 'ANTHROPIC_API_KEY not set' } });
     }
 
-    // Step 3: Measurements (line items + geometry)
-    send('step', { step: 'measurements', status: 'loading', message: 'Computing measurements...' });
+    // Measurements + pricing are synchronous — the client auto-advances
+    // through these loader steps on a timer, so no SSE events needed.
     let lineItems = null;
     try {
       lineItems = computeLineItems({
@@ -109,10 +110,7 @@ pipelineRouter.post('/pipeline', async (req, res) => {
     } catch (e) {
       console.error('computeLineItems failed:', e);
     }
-    send('step', { step: 'measurements', status: 'done', data: lineItems });
 
-    // Step 4: Pricing (tiered estimate)
-    send('step', { step: 'pricing', status: 'loading', message: 'Building estimate...' });
     let pricing = null;
     try {
       pricing = computeTieredPricing({
@@ -122,20 +120,15 @@ pipelineRouter.post('/pipeline', async (req, res) => {
     } catch (e) {
       console.error('computeTieredPricing failed:', e);
     }
-    send('step', { step: 'pricing', status: 'done', data: pricing });
 
-    // Step 3: JobNimbus (requires JN_API_KEY)
+    // JobNimbus push
     let jnResult = null;
     if (process.env.JN_API_KEY) {
-      send('step', { step: 'jobnimbus', status: 'loading', message: 'Pushing to JobNimbus...' });
       try {
         jnResult = await pushToJobNimbus({ address, lat, lng, zip, roofData, visionData, lineItems });
-        send('step', { step: 'jobnimbus', status: 'done', data: jnResult });
       } catch (jnErr) {
-        send('step', { step: 'jobnimbus', status: 'done', data: { skipped: true, reason: jnErr.message } });
+        jnResult = { skipped: true, reason: jnErr.message };
       }
-    } else {
-      send('step', { step: 'jobnimbus', status: 'done', data: { skipped: true, reason: 'JN_API_KEY not set' } });
     }
 
     // Strip the per-edge breakdown from lineItems before serializing — it's
@@ -145,8 +138,13 @@ pipelineRouter.post('/pipeline', async (req, res) => {
     // chunks.
     const lineItemsForClient = lineItems ? (() => { const { edges, ...rest } = lineItems; return rest; })() : null;
 
+    // Stable estimate ID — generated once at pipeline completion so the UI
+    // and any subsequent PDF download stamp the same number.
+    const estimateId = randomUUID().replace(/-/g, '').slice(0, 8).toUpperCase();
+
     send('done', {
       message: 'Pipeline complete',
+      estimateId,
       imagery,
       roofData,
       roofOutline,
