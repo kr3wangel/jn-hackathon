@@ -2,8 +2,8 @@
   "message": "Pipeline complete",
   "estimateId": "A0F37036",
   "imagery": {
-    "satellite": "https://maps.googleapis.com/maps/api/staticmap?center=36.9845554%2C-76.4016532&zoom=20&size=640x640&maptype=satellite&key=AIzaSyCGsfzqH97EUNuyoXgVX8f-qqmow2xjUqM",
-    "streetView": "https://maps.googleapis.com/maps/api/streetview?location=36.9845554%2C-76.4016532&size=640x480&key=AIzaSyCGsfzqH97EUNuyoXgVX8f-qqmow2xjUqM"
+    "satellite": "https://maps.googleapis.com/maps/api/staticmap?center=36.9845554%2C-76.4016532&zoom=20&size=640x640&maptype=satellite&key=YOUR_GOOGLE_API_KEY",
+    "streetView": "https://maps.googleapis.com/maps/api/streetview?location=36.9845554%2C-76.4016532&size=640x480&key=YOUR_GOOGLE_API_KEY"
   },
   "roofData": {
     "totalAreaSqft": 6118,
